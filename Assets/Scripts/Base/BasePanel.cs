@@ -34,11 +34,6 @@ public class BasePanel : MonoBehaviour
 
     }
 
-    protected virtual void Update()
-    {
-
-    }
-
     protected virtual void OnDestroy()
     {
         
