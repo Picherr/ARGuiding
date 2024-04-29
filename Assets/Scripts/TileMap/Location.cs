@@ -244,14 +244,14 @@ public static class Conversion
     /// </summary>
     /// <param name="se"></param>
     /// <returns></returns>
-    public static LatLng GetWorldPoint(Vector2 se)
+    public static Vector3 GetWorldPoint(Vector2 se)
     {
         double tempX = se.x - TopLeftCoord.Longitude;
         double tempZ = se.y - BottomRightCoord.Latitude;
         double _tempX = tempX * u_offset / x_offset + TopLeftPoint.x;//计算X轴
         double _tempZ = tempZ * u_offset / z_offset + BottomRightPoint.y;//计算Z轴
         //获取该点世界坐标
-        return new LatLng(_tempX, _tempZ);
+        return new Vector3((float)_tempX, 0, (float)_tempZ);
     }
 
     /// <summary>
