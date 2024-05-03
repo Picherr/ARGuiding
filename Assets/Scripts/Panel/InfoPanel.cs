@@ -29,6 +29,8 @@ public class InfoPanel : BasePanel
     public static int desIndex = -1;//目的地指示
 #endif
 
+    private int tempDesIndex;
+
     protected override void Awake()
     {
         //在Content中添加InfoTab
@@ -57,11 +59,6 @@ public class InfoPanel : BasePanel
         trigger.triggers.Add(entry);*/
     }
 
-    private void Update()
-    {
-
-    }
-
     protected override void OnClick(string btnName)
     {
         base.OnClick(btnName);
@@ -70,27 +67,27 @@ public class InfoPanel : BasePanel
             case "浩气长存":
                 info.SetActive(true);
                 info.GetComponentInChildren<TextMeshProUGUI>().text = Info.DesIntro(1).ToString();
-                desIndex = 1;
+                tempDesIndex = 1;
                 break;
             case "七十二烈士之墓":
                 info.SetActive(true);
                 info.GetComponentInChildren<TextMeshProUGUI>().text = Info.DesIntro(2).ToString();
-                desIndex = 2;
+                tempDesIndex = 2;
                 break;
             case "邓仲元墓":
                 info.SetActive(true);
                 info.GetComponentInChildren<TextMeshProUGUI>().text = Info.DesIntro(3).ToString();
-                desIndex = 3;
+                tempDesIndex = 3;
                 break;
             case "黄花文化馆":
                 info.SetActive(true);
                 info.GetComponentInChildren<TextMeshProUGUI>().text = Info.DesIntro(4).ToString();
-                desIndex = 4;
+                tempDesIndex = 4;
                 break;
             case "龙柱":
                 info.SetActive(true);
                 info.GetComponentInChildren<TextMeshProUGUI>().text = Info.DesIntro(5).ToString();
-                desIndex = 5;
+                tempDesIndex = 5;
                 break;
         }
     }
@@ -108,10 +105,26 @@ public class InfoPanel : BasePanel
     /// </summary>
     private void OnGo()
     {
-        //GaoDeAPI.GetInstance().OnDirection(desIndex);
+        desIndex = tempDesIndex;
         //先停止已有的所有路径规划，再进行新的路径规划
         this.TriggerEvent(EventName.EndGuidingDirection);//触发事件
         this.TriggerEvent(EventName.StartGuidingDirection);//触发事件
+        this.TriggerEvent(EventName.ChangeModeToARGuidingType, new ChangeModeToARGuidingType
+        {
+            modeType = ModeToAR_Type.StartGuiding
+        });
+        /*this.TriggerEvent(EventName.ShowNotification, new ShowNotificationArgs//触发ShowNotification事件
+        {
+            message = "已到达\n" + Info.DesInfo(InfoPanel.desIndex),
+            isBtnOn = true,//开启确认按钮
+            autoOff = false//信息框手动关闭
+        });
+        this.TriggerEvent(EventName.UpdateGuidingInfo, new UpdateGuidingInfoArgs//触发事件UpdateGuidingInfo
+        {
+            guidingText = "向北步行1米到达目的地",//获取步行指示
+            desName = Info.DesInfo(InfoPanel.desIndex),//获取目的地名称
+            disMiles = "1"//获取剩余距离
+        });*/
     }
 
     /// <summary>
