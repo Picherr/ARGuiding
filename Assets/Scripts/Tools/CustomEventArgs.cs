@@ -9,13 +9,13 @@ using UnityEngine;
 public enum EventName
 {
     ShowNotification,//显示通知
-    LocatedTheFstTime,//应用开启初始化定位后
     StartGuidingDirection,//开始进行路径规划
     EndGuidingDirection,//变更或取消路径规划
     UpdateGuidingInfo,//更新导航信息
     AlreadyCreatedModel,//创建虚拟导游
     HaveArrivedDestination,//到达目的地
     ChangeModeTo2DGuiding,//转换回2D平面导航模式
+    VideoIntroduction//打开介绍视频
 }
 
 public class ShowNotificationArgs : EventArgs
@@ -25,11 +25,6 @@ public class ShowNotificationArgs : EventArgs
     public bool autoOff = true;//自动关闭
 }
 
-public class LocatedTheFstTimeArgs: EventArgs
-{
-
-}
-
 public class UpdateGuidingInfoArgs : EventArgs
 {
     public string guidingText;
@@ -37,23 +32,8 @@ public class UpdateGuidingInfoArgs : EventArgs
     public string disMiles;
 }
 
-public class AlreadyCreatedModelArgs : EventArgs
-{
-    
-}
-
-public class ChangeModeToARArgs : EventArgs
-{
-
-}
-
 public class HaveArrivedDestinationArgs : EventArgs
 {
     public int desIndex;//目的地代数
     public string notice;//指示已经到达的消息
-}
-
-public class ChangeModeTo2DGuidingArgs : EventArgs
-{
-    
 }
