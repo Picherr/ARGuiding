@@ -6,7 +6,16 @@ using UnityEngine.Android;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 using LitJson;
-using TMPro;
+
+public enum Quadrant
+{
+    //注意：该象限及度数是以指南针为基准
+    First,//0°~90°
+    Second,//90°~180°
+    Third,//180°~270°
+    Fourth,//270°~360°
+    Null
+};
 
 public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
 {
@@ -14,36 +23,33 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
 
     private string longitude;//unity坐标经度
     private string latitude;//unity坐标纬度
-    private string GDlongitude;//高德坐标经度
-    private string GDlatitude;//高德坐标纬度
+    private string GDlongitude = "113.295082";//高德坐标经度
+    private string GDlatitude = "23.138099";//高德坐标纬度
 
-    public Text searchinfo;
-    public InputField search;
-    public Button Locating;
-    public Button Searching;
-
-    public Transform content;
-    public Transform tip;
+    private Text searchinfo;
+    private InputField search;
+    private Button Locating;
+    private Button Searching;
+    private Transform content;
+    private Transform tip;
 
     [SerializeField]
     private LineRenderer lineRendererInMap;
     [SerializeField]
     private LineRenderer lineRendererInWorld;
 
-    private bool isFstTime = true;//是否是第一次定位，即应用初始化
-
     private bool isGuiding = false;//是否正在导航
-
+    private bool isARGuiding = false;//是否正在AR导航
     private bool isLocating = false;//是否此次操作为定位
-
-    private int i = 0;
 
     public string GetLongitude { get { return longitude; } }
     public string GetLatitude { get { return latitude; } }
     public string GetGDlongitude { get { return GDlongitude; } }
     public string GetGDlatitude { get { return GDlatitude; } }
-
+    public bool IsARGuiding { set { isARGuiding = value; } }
     public bool IsLocating { set { isLocating = value; } }
+    public LineRenderer LineRendererInMap { get { return lineRendererInMap; } }
+    public LineRenderer LineRendererInWorld { set { lineRendererInWorld = value; } }
 
     private void Awake()
     {
@@ -68,7 +74,7 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
     private void StartGuidingDirection(object sender, EventArgs e)
     {
         isGuiding = true;
-        InvokeRepeating("OnDirection", 0, 5f);
+        InvokeRepeating("OnDirection", 0, 3f);
     }
 
     private void EndGuidingDirection(object sender, EventArgs e)
@@ -97,13 +103,12 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
     /// </summary>
     public void OnDirection()
     {
-        Debug.Log("刷新导航" + i++);
         //1.获取当前位置坐标
         OnLocating();
         //2.获取规划信息
 #if UNITY_EDITOR
         StartCoroutine(Direction(
-            "https://restapi.amap.com/v5/direction/walking?origin=113.295128,23.139692&destination=" +
+            "https://restapi.amap.com/v5/direction/walking?origin=113.295082,23.138099&destination=" +
             Info.DesCoord(InfoPanel.desIndex).x.ToString() + "," + Info.DesCoord(InfoPanel.desIndex).y.ToString() +
             "&show_fields=polyline&key=" + key));
 #else
@@ -330,9 +335,14 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
                         isBtnOn = true,//开启确认按钮
                         autoOff = false//信息框手动关闭
                     });
-                    this.TriggerEvent(EventName.EndGuidingDirection);//触发事件，不再进行路径规划
+                    this.TriggerEvent(EventName.EndGuidingDirection);//触发事件，停止路径规划
+                    this.TriggerEvent(EventName.ChangeModeToARGuidingType, new ChangeModeToARGuidingType
+                    {
+                        modeType = ModeToAR_Type.Arrived
+                    });
                     yield break;//后面的代码不再执行
                 }
+
                 JsonData jd = JsonMapper.ToObject(webRequest.downloadHandler.text);
                 //Debug.Log(jd["infocode"].ToString());
                 //只需要获取路径规划的第一条数据即可（因为位置是不断刷新的，后面的数据用不到）
@@ -346,9 +356,9 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
                 //polyline在json中的格式：
                 //"polyline":"116.46658,39.995686;116.46694,39.995686;116.46694,39.995686;116.467665,39.995686"
 
-                //List<Vector3> waypoints = new List<Vector3>();
-                List<LatLng> waypoints = new List<LatLng>();
+                List<Vector3> waypoints = new List<Vector3>();//二维地图坐标点列表
                 Vector2 point;
+                Vector3 pnt;
                 for (int i = 0; i < jd["route"]["paths"][0]["steps"].Count; i++)//处理每一step中的polyline
                 {
                     string[] polyline = jd["route"]["paths"][0]["steps"][i]["polyline"].ToString().Split(';');//将每一对坐标分开
@@ -356,13 +366,21 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
                     for (int j = i == 0 ? 0 : 1; j < polyline.Length; j++)//处理每一polyline中的每个点
                     {
                         string[] points = polyline[j].Split(',');//将每个点的经纬坐标分开
-                        double lng = double.Parse(points[0]);
-                        double lat = double.Parse(points[1]);
-                        point = new Vector2((float)lng, (float)lat);//打包成LatLng对象
+                        float lng = float.Parse(points[0]);//经度
+                        float lat = float.Parse(points[1]);//纬度
+                        point = new Vector2(lng, lat);
                         waypoints.Add(Conversion.GetWorldPoint(point));//通过Conversion类将经纬度转换为世界坐标
+                        if (i == 0 && j == 0)//将第一个点用作AR导航路径的绘制
+                        {
+                            pnt = new Vector3(lng, 0, lat);
+                            if (isARGuiding)
+                            {
+                                DrawRouteInWorld(pnt);//绘制AR导航路径
+                            }
+                        }
                     }
                 }
-                DrawRouteInMap(waypoints);//绘制路径
+                DrawRouteInMap(waypoints);//绘制二维地图路径
                 yield break;
             }
         }
@@ -414,14 +432,13 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
     /// 在Unity世界中绘制导航线
     /// </summary>
     /// <param name="waypoints"></param>
-    public void DrawRouteInMap(List<LatLng> waypoints)
+    public void DrawRouteInMap(List<Vector3> waypoints)
     {
         lineRendererInMap.positionCount = waypoints.Count;
-        Debug.Log(lineRendererInMap.positionCount);
 
         for (int i = 0; i < lineRendererInMap.positionCount; i++)
         {
-            lineRendererInMap.SetPosition(i, new Vector3((float)waypoints[i].Longitude, 5f, (float)waypoints[i].Latitude));
+            lineRendererInMap.SetPosition(i, new Vector3(waypoints[i].x, 5f, waypoints[i].z));
         }
     }
 
@@ -429,14 +446,74 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
     /// 在真实世界中绘制导航线
     /// </summary>
     /// <param name="waypoints"></param>
-    public void DrawRouteInWorld(List<Vector3> waypoints)
+    public void DrawRouteInWorld(Vector3 pnt)
     {
-        lineRendererInWorld.positionCount = waypoints.Count >= 2 ? 2 : waypoints.Count;//只需要画出前两个点，即大致方向的线
-        float distance;
-        distance = Conversion.GetDistance(waypoints[0].y, waypoints[0].x, waypoints[1].y, waypoints[1].x);//计算两点之间的距离
-        Vector3 v = Vector3.Normalize(waypoints[1] - waypoints[0]);//计算两点之间的单位向量
-        v = v * distance;
-        lineRendererInWorld.SetPosition(1, v + new Vector3(0, 0.01f, 0));
+        lineRendererInWorld.positionCount = 2;
+        lineRendererInWorld.SetPosition(0, new Vector3(0, 0, 0));
+
+        //一般情况下，应用开启时的手机朝向决定了LineRenderer的朝向，这样就可能出现导航向北、AR路线向南的情况，因此需要根据v.z和指南针的角度进行调整
+        float angleA = Input.compass.trueHeading;//手机相机的朝向角度
+        float angleB;
+        Vector2 vCam = new Vector2(Mathf.Sin(angleA / Mathf.Rad2Deg), Mathf.Cos(angleA / Mathf.Rad2Deg));//手机相机朝向的二维向量
+        int quadrantCam = GetQuadrant(vCam);//获得手机朝向所在象限
+        Vector2 vNor = new Vector2(pnt.x - float.Parse(GDlongitude), pnt.z - float.Parse(GDlatitude));//当前位置和下一个点的二维向量
+        int quadrantNor = GetQuadrant(vNor);//获得规划路径向量所在象限
+        angleB = Vector2.Angle(vCam, vNor);//两个向量之间的夹角
+        /*Debug.Log("angleA:" + angleA);
+        Debug.Log("vCam:" + vCam.ToString() + "；象限为：" + quadrantCam);
+        Debug.Log("vNor:" + vNor.ToString() + "；象限为：" + quadrantNor);
+        Debug.Log("angleB:" + angleB);*/
+        int diff = Mathf.Abs(quadrantCam - quadrantNor);//象限差值
+        //单纯靠夹角angleB是判断不了的，还需要对vCam和vNor两个二维向量进行分类讨论
+        if (diff == 0)//如果在同一象限，无需翻转
+        {
+            lineRendererInWorld.SetPosition(1, new Vector3(Mathf.Tan(angleB), 1, 5));
+            //Debug.Log("同一象限，无需翻转");
+        }
+        else//如果不在同一象限，继续分类讨论
+        {
+            if ((diff == 1 || diff == 3) && angleB <= 60)//所在象限相邻，且夹角不超过60度，无需翻转
+            {
+                lineRendererInWorld.SetPosition(1, new Vector3(Mathf.Tan(angleB), 1, 5));
+                //Debug.Log("象限相邻，且夹角不超过90度，无需翻转");
+            }
+            else if ((diff == 1 || diff == 3) && angleB > 60)//所在象限相邻，但夹角超过60度，翻转
+            {
+                lineRendererInWorld.SetPosition(1, new Vector3(Mathf.Tan(angleB), 1, -5));
+                //Debug.Log("象限相邻，但夹角超过90度，翻转");
+            }
+            else//所在象限对角，翻转
+            {
+                lineRendererInWorld.SetPosition(1, new Vector3(Mathf.Tan(angleB), 1, -5));
+                //Debug.Log("象限对角，翻转");
+            }
+        }
+    }
+
+    /// <summary>
+    /// 将向量转换为所在象限
+    /// </summary>
+    /// <param name="vec"></param>
+    /// <returns></returns>
+    private int GetQuadrant(Vector2 vec)
+    {
+        if (vec.x > 0 && vec.y > 0)
+        {
+            return 1;
+        }
+        else if (vec.x > 0 && vec.y < 0)
+        {
+            return 2;
+        }
+        else if (vec.x < 0 && vec.y < 0)
+        {
+            return 3;
+        }
+        else if (vec.x < 0 && vec.y > 0)
+        {
+            return 4;
+        }
+        return 0;
     }
 
     private void OnDestroy()
