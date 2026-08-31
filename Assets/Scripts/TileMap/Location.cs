@@ -313,7 +313,6 @@ public static class Conversion
         float b = radLng1 - radLng2;
         float result = 2 * Mathf.Asin(Mathf.Sqrt(Mathf.Pow(Mathf.Sin(a / 2), 2) +
             Mathf.Cos(radLat1) * Mathf.Cos(radLat2) * Mathf.Pow(Mathf.Sin(b / 2), 2))) * EarthRadius;
-        Debug.Log(result);
         return result;
     }
 
