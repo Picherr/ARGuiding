@@ -6,16 +6,27 @@ using UnityEngine.UI;
 
 public class MapPanel : BasePanel
 {
-    private static string key = "7b8f9443eed7ff041d9ad7d9dd9e87a2";
-
     private Image image;
 
     //public LineRenderer lineRenderInMap;//二维地图上的导航线
 
     public void OnMap()
     {
+        string key;
+        string keyError;
+        if (!AppSecrets.TryGetAmapWebServiceKey(out key, out keyError))
+        {
+            this.TriggerEvent(EventName.ShowNotification, new ShowNotificationArgs
+            {
+                message = keyError,
+                isBtnOn = false,
+                autoOff = true
+            });
+            return;
+        }
+
         StartCoroutine(PostSprite("https://restapi.amap.com/v3/staticmap?zoom=15&size=400*400&markers=mid,0xFF0000,A:" +
-            "113.245600,23.070910&key=" + key));
+            "113.245600,23.070910&key=" + UnityWebRequest.EscapeURL(key)));
     }
 
     public void LoadSpriteByte(byte[] path)
