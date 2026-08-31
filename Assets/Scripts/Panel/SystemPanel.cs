@@ -112,8 +112,7 @@ public class SystemPanel : BasePanel
         switch (btnName)
         {
             case "btnConfirm"://信息框确认按钮
-                isAR = !isAR;
-                ModeChange(isAR);
+                ModeChange(!isAR);
                 CloseDebug();
                 break;
             case "btnLocating"://定位
@@ -121,8 +120,7 @@ public class SystemPanel : BasePanel
                 GaoDeAPI.GetInstance().OnLocating();
                 break;
             case "btnChangeMode"://转换导航模式
-                isAR = !isAR;
-                ModeChange(isAR);
+                ModeChange(!isAR);
                 break;
             case "btnStop"://停止导航
                 this.TriggerEvent(EventName.EndGuidingDirection);
@@ -209,7 +207,10 @@ public class SystemPanel : BasePanel
             }
             btnRoute.SetActive(false);
         }
-        GaoDeAPI.GetInstance().LineRendererInMap.positionCount = 0;//路径点数置为0
+        if (GaoDeAPI.GetInstance().LineRendererInMap != null)
+        {
+            GaoDeAPI.GetInstance().LineRendererInMap.positionCount = 0;//路径点数置为0
+        }
         this.TriggerEvent(EventName.UpdateGuidingInfo, new UpdateGuidingInfoArgs
         {
             desName = "",
@@ -265,6 +266,18 @@ public class SystemPanel : BasePanel
 
     private void ModeChange(bool isar)
     {
+        if (isar && (InfoPanel.desIndex < 1 || InfoPanel.desIndex > 5))
+        {
+            this.TriggerEvent(EventName.ShowNotification, new ShowNotificationArgs
+            {
+                message = "请先选择目的地，再进入 AR 导览。",
+                isBtnOn = false,
+                autoOff = true
+            });
+            return;
+        }
+
+        isAR = isar;
         if (isar)//开启AR导航模式
         {
             UIManager.GetInstance().HidePanel("MapPanel");
@@ -272,7 +285,7 @@ public class SystemPanel : BasePanel
 
             if (InfoPanel.desIndex != 4)//未选择黄花文化馆目的地时，才有虚拟导游
             {
-                ARGroundPlane.GetInstance().planeFinder.gameObject.SetActive(true);//开启平面检测
+                ARGroundPlane.GetInstance().SetPlaneFinderActive(true);//开启平面检测
                 ARGroundPlane.GetInstance().AddListener();//添加检测平面事件
             }
             else
@@ -285,6 +298,16 @@ public class SystemPanel : BasePanel
             //加载AR导航线预制体
             ResMgr.GetInstance().LoadAsync<GameObject>("Prefabs/RouteInWorld", (obj) =>
             {
+                if (!isAR)
+                {
+                    Destroy(obj);
+                    return;
+                }
+
+                if (lineRendererInWorld != null)
+                {
+                    Destroy(lineRendererInWorld);
+                }
                 obj.transform.rotation = Quaternion.identity;
                 lineRendererInWorld = obj;
                 GaoDeAPI.GetInstance().LineRendererInWorld = obj.GetComponent<LineRenderer>();
@@ -311,12 +334,14 @@ public class SystemPanel : BasePanel
             UIManager.GetInstance().ShowPanel<MapPanel>("MapPanel", UI_Layer.Bot);
             UIManager.GetInstance().ShowPanel<InfoPanel>("InfoPanel", UI_Layer.Top);
 
-            ARGroundPlane.GetInstance().planeFinder.gameObject.SetActive(false);//关闭平面检测
+            ARGroundPlane.GetInstance().SetPlaneFinderActive(false);//关闭平面检测
             this.TriggerEvent(EventName.ChangeModeTo2DGuiding);//触发事件
 
             GaoDeAPI.GetInstance().IsARGuiding = false;
 
             Destroy(lineRendererInWorld);
+            lineRendererInWorld = null;
+            GaoDeAPI.GetInstance().LineRendererInWorld = null;
 
             if (Video.activeSelf)//如果视频窗口打开
             {

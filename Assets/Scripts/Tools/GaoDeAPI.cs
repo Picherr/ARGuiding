@@ -8,16 +8,6 @@ using UnityEngine.UI;
 using LitJson;
 using System.Globalization;
 
-public enum Quadrant
-{
-    //注意：该象限及度数是以指南针为基准
-    First,//0°~90°
-    Second,//90°~180°
-    Third,//180°~270°
-    Fourth,//270°~360°
-    Null
-};
-
 public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
 {
     private string longitude;//unity坐标经度
@@ -475,72 +465,28 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
     /// <param name="waypoints"></param>
     public void DrawRouteInWorld(Vector3 pnt)
     {
+        if (lineRendererInWorld == null)
+        {
+            Debug.LogWarning("AR 路线对象尚未加载完成。");
+            return;
+        }
+
+        double currentLongitude;
+        double currentLatitude;
+        if (!double.TryParse(GDlongitude, NumberStyles.Float, CultureInfo.InvariantCulture,
+                out currentLongitude) ||
+            !double.TryParse(GDlatitude, NumberStyles.Float, CultureInfo.InvariantCulture,
+                out currentLatitude))
+        {
+            Debug.LogWarning("当前位置无法用于计算 AR 导航方向。");
+            return;
+        }
+
+        float targetBearing = NavigationMath.CalculateBearing(currentLatitude, currentLongitude, pnt.z, pnt.x);
         lineRendererInWorld.positionCount = 2;
-        lineRendererInWorld.SetPosition(0, new Vector3(0, 0, 0));
-
-        //一般情况下，应用开启时的手机朝向决定了LineRenderer的朝向，这样就可能出现导航向北、AR路线向南的情况，因此需要根据v.z和指南针的角度进行调整
-        float angleA = Input.compass.trueHeading;//手机相机的朝向角度
-        float angleB;
-        Vector2 vCam = new Vector2(Mathf.Sin(angleA / Mathf.Rad2Deg), Mathf.Cos(angleA / Mathf.Rad2Deg));//手机相机朝向的二维向量
-        int quadrantCam = GetQuadrant(vCam);//获得手机朝向所在象限
-        Vector2 vNor = new Vector2(pnt.x - float.Parse(GDlongitude), pnt.z - float.Parse(GDlatitude));//当前位置和下一个点的二维向量
-        int quadrantNor = GetQuadrant(vNor);//获得规划路径向量所在象限
-        angleB = Vector2.Angle(vCam, vNor);//两个向量之间的夹角
-        /*Debug.Log("angleA:" + angleA);
-        Debug.Log("vCam:" + vCam.ToString() + "；象限为：" + quadrantCam);
-        Debug.Log("vNor:" + vNor.ToString() + "；象限为：" + quadrantNor);
-        Debug.Log("angleB:" + angleB);*/
-        int diff = Mathf.Abs(quadrantCam - quadrantNor);//象限差值
-        //单纯靠夹角angleB是判断不了的，还需要对vCam和vNor两个二维向量进行分类讨论
-        if (diff == 0)//如果在同一象限，无需翻转
-        {
-            lineRendererInWorld.SetPosition(1, new Vector3(Mathf.Tan(angleB), 1, 5));
-            //Debug.Log("同一象限，无需翻转");
-        }
-        else//如果不在同一象限，继续分类讨论
-        {
-            if ((diff == 1 || diff == 3) && angleB <= 60)//所在象限相邻，且夹角不超过60度，无需翻转
-            {
-                lineRendererInWorld.SetPosition(1, new Vector3(Mathf.Tan(angleB), 1, 5));
-                //Debug.Log("象限相邻，且夹角不超过90度，无需翻转");
-            }
-            else if ((diff == 1 || diff == 3) && angleB > 60)//所在象限相邻，但夹角超过60度，翻转
-            {
-                lineRendererInWorld.SetPosition(1, new Vector3(Mathf.Tan(angleB), 1, -5));
-                //Debug.Log("象限相邻，但夹角超过90度，翻转");
-            }
-            else//所在象限对角，翻转
-            {
-                lineRendererInWorld.SetPosition(1, new Vector3(Mathf.Tan(angleB), 1, -5));
-                //Debug.Log("象限对角，翻转");
-            }
-        }
-    }
-
-    /// <summary>
-    /// 将向量转换为所在象限
-    /// </summary>
-    /// <param name="vec"></param>
-    /// <returns></returns>
-    private int GetQuadrant(Vector2 vec)
-    {
-        if (vec.x > 0 && vec.y > 0)
-        {
-            return 1;
-        }
-        else if (vec.x > 0 && vec.y < 0)
-        {
-            return 2;
-        }
-        else if (vec.x < 0 && vec.y < 0)
-        {
-            return 3;
-        }
-        else if (vec.x < 0 && vec.y > 0)
-        {
-            return 4;
-        }
-        return 0;
+        lineRendererInWorld.SetPosition(0, Vector3.zero);
+        lineRendererInWorld.SetPosition(1,
+            NavigationMath.GetLocalDirection(Input.compass.trueHeading, targetBearing));
     }
 
     private static bool IsDestinationValid()
@@ -620,6 +566,10 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
         });
 
         List<Vector3> waypoints = new List<Vector3>();
+        bool hasNextDirectionPoint = false;
+        Vector3 nextDirectionPoint = Vector3.zero;
+        float currentLatitude = float.Parse(GDlatitude, CultureInfo.InvariantCulture);
+        float currentLongitude = float.Parse(GDlongitude, CultureInfo.InvariantCulture);
         for (int i = 0; i < path["steps"].Count; i++)
         {
             string[] polyline = path["steps"][i]["polyline"].ToString().Split(';');
@@ -640,14 +590,20 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
                 }
 
                 waypoints.Add(Conversion.GetWorldPoint(new Vector2(lng, lat)));
-                if (i == 0 && j == 0 && isARGuiding)
+                if (!hasNextDirectionPoint &&
+                    Conversion.GetDistance(currentLatitude, currentLongitude, lat, lng) >= 2f)
                 {
-                    DrawRouteInWorld(new Vector3(lng, 0, lat));
+                    nextDirectionPoint = new Vector3(lng, 0, lat);
+                    hasNextDirectionPoint = true;
                 }
             }
         }
 
         DrawRouteInMap(waypoints);
+        if (isARGuiding && hasNextDirectionPoint)
+        {
+            DrawRouteInWorld(nextDirectionPoint);
+        }
     }
 
     private void ApplyConvertedLocation(string responseText)

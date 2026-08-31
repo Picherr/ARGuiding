@@ -28,6 +28,11 @@ public class ModelMgr : MonoBehaviour
 
     private void modelUpdate()
     {
+        if (anim == null)
+        {
+            return;
+        }
+
         info = anim.GetCurrentAnimatorStateInfo(0);
         if (info.IsName("talking") && !isStart)//如果开始播放讲述动画
         {
@@ -46,7 +51,15 @@ public class ModelMgr : MonoBehaviour
     /// </summary>
     private void Introduce()
     {
-        AS.clip = audioClip[InfoPanel.desIndex - 1];//获取当前要播放的音频
+        int audioIndex = InfoPanel.desIndex - 1;
+        if (AS == null || audioClip == null || audioIndex < 0 || audioIndex >= audioClip.Count ||
+            audioClip[audioIndex] == null)
+        {
+            Debug.LogError("当前景点没有可用的讲解音频。");
+            return;
+        }
+
+        AS.clip = audioClip[audioIndex];//获取当前要播放的音频
         AS.Play();//播放音频
     }
 

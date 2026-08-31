@@ -105,6 +105,17 @@ public class InfoPanel : BasePanel
     /// </summary>
     private void OnGo()
     {
+        if (tempDesIndex < 1 || tempDesIndex > 5)
+        {
+            this.TriggerEvent(EventName.ShowNotification, new ShowNotificationArgs
+            {
+                message = "请先选择一个景点。",
+                isBtnOn = false,
+                autoOff = true
+            });
+            return;
+        }
+
         desIndex = tempDesIndex;
         //先停止已有的所有路径规划，再进行新的路径规划
         this.TriggerEvent(EventName.EndGuidingDirection);//触发事件
