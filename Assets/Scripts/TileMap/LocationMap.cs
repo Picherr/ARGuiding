@@ -69,6 +69,7 @@ public class LocationMap : MonoBehaviour
 
     //中心 瓦片信息类
     private TileInfo m_centerTileInfo = null;
+    private LatLng currentMapCenter;
 
     //最好是正方形，容易计算，目前没处理 非正方形
     //瓦片行数
@@ -85,10 +86,10 @@ public class LocationMap : MonoBehaviour
 
     private void Start()
     {
-#if UNITY_EDITOR
-        //StartCoroutine(InitTileInfo());
-#endif
         StartCoroutine(InitTileInfo());
+#if !UNITY_EDITOR
+        StartCoroutine(RecenterWhenLocationIsReady());
+#endif
     }
 
     private void LocatedTheFstTime(object sender, EventArgs e)
@@ -100,24 +101,64 @@ public class LocationMap : MonoBehaviour
 
     private IEnumerator InitTileInfo()
     {
-        //yield return Location.InitLocationPos();
-
-        if (Location.mLatLng != null)
+        LatLng latLng = Location.mLatLng;
+        if (latLng == null)
         {
-            LatLng latLng = Location.mLatLng;
-#if UNITY_EDITOR
-            //测试数据
-            //latLng = new LatLng(double.Parse(GaoDeAPI.GetInstance().GetLongitude),
-            //    double.Parse(GaoDeAPI.GetInstance().GetLatitude));
-            //latLng = new LatLng(113.245600d, 23.070910d);
-            latLng = new LatLng(113.295128d, 23.139692d);
-#endif
-            if (latLng == null) yield break;
-
-            m_centerTileInfo = Location.LatLngToTileXY(latLng, TileZoom);
-
-            InitAllTile();
+            yield break;
         }
+
+#if UNITY_EDITOR
+        latLng = new LatLng(113.295128d, 23.139692d);
+#endif
+
+        RebuildMap(latLng);
+    }
+
+    private IEnumerator RecenterWhenLocationIsReady()
+    {
+        float remaining = 25f;
+        GaoDeAPI api = GaoDeAPI.GetInstance();
+        while (!api.HasValidLocation && remaining > 0f)
+        {
+            remaining -= Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        if (api.HasValidLocation && Location.mLatLng != null)
+        {
+            RebuildMap(Location.mLatLng);
+        }
+    }
+
+    private void RebuildMap(LatLng center)
+    {
+        if (center == null)
+        {
+            return;
+        }
+
+        if (currentMapCenter != null &&
+            Math.Abs(currentMapCenter.Longitude - center.Longitude) < 0.000001d &&
+            Math.Abs(currentMapCenter.Latitude - center.Latitude) < 0.000001d)
+        {
+            return;
+        }
+
+        if (TileMaps != null)
+        {
+            foreach (TileImageInfo tile in TileMaps)
+            {
+                if (tile != null && tile.Go != null)
+                {
+                    Destroy(tile.Go);
+                }
+            }
+            TileMaps.Clear();
+        }
+
+        currentMapCenter = new LatLng(center.Longitude, center.Latitude);
+        m_centerTileInfo = Location.LatLngToTileXY(currentMapCenter, TileZoom);
+        InitAllTile();
     }
 
     private void InitAllTile()
@@ -125,21 +166,22 @@ public class LocationMap : MonoBehaviour
         //求的 左上角的 x 和 y的 瓦片值
         int x = m_centerTileInfo.TileX - (TileColumn - 1) / 2;
         int y = m_centerTileInfo.TileY - (TileRow - 1) / 2;
-        //获取地图面板东南角和西北角的经纬度，用于地图路径的绘制
-        //LatLng latlng;
-        //Conversion.BottomRightCoord = Location.TileXYToLatLng(x + 6, y + 6, TileZoom, 156, 156);//东南角经纬度
-        //Conversion.BottomRightCoord = new Vector2((float)latlng.Longitude, (float)latlng.Latitude);
-        //Conversion.TopLeftCoord = Location.TileXYToLatLng(x + 1, y + 1, TileZoom, 100, 100);//西北角经纬度
-        //Conversion.TopLeftCoord = new Vector2((float)latlng.Longitude, (float)latlng.Latitude);
-        //Debug.Log("东南角经度为：" + Conversion.BottomRightCoord.Longitude+"纬度为："+Conversion.BottomRightCoord.Latitude);
-        //Debug.Log("西北角经度为：" + Conversion.TopLeftCoord.Longitude + "纬度为：" + Conversion.TopLeftCoord.Latitude);
-        //求得经纬度的差值
-        //Conversion.x_Offset = Math.Abs(Conversion.BottomRightCoord.Longitude - Conversion.TopLeftCoord.Longitude);
-        //Conversion.z_Offset = Math.Abs(Conversion.TopLeftCoord.Latitude - Conversion.BottomRightCoord.Latitude);
-        //Debug.Log("经度差值为：" + Conversion.x_offset);
-        //Debug.Log("纬度差值为：" + Conversion.z_offset);
+        double globalPixelX = m_centerTileInfo.TileX * TileWidthAndHeigth + m_centerTileInfo.PixelX;
+        double globalPixelY = m_centerTileInfo.TileY * TileWidthAndHeigth + m_centerTileInfo.PixelY;
+        const double viewportSize = 1080d;
+        Conversion.ConfigureMapBounds(
+            Location.GlobalPixelToLatLng(globalPixelX - viewportSize / 2d,
+                globalPixelY - viewportSize / 2d, TileZoom),
+            Location.GlobalPixelToLatLng(globalPixelX + viewportSize / 2d,
+                globalPixelY + viewportSize / 2d, TileZoom));
+
         //左上角Image 图片的坐标
-        Vector3 sour = new Vector3(0 - TileWidthAndHeigth * (TileColumn - 1) / 2 * TileScale, 0 + TileWidthAndHeigth * (TileRow - 1) / 2 * TileScale, 0);
+        Vector3 sour = new Vector3(
+            -TileWidthAndHeigth * (TileColumn - 1) / 2 * TileScale +
+            (TileWidthAndHeigth / 2 - m_centerTileInfo.PixelX) * TileScale,
+            TileWidthAndHeigth * (TileRow - 1) / 2 * TileScale +
+            (m_centerTileInfo.PixelY - TileWidthAndHeigth / 2) * TileScale,
+            0);
         TileMaps = new List<TileImageInfo>(TileRow * TileColumn);
         TileImageInfo[] gameObjects = new TileImageInfo[TileRow * TileColumn];
         for (int i = 0; i < TileRow; i++)
@@ -188,7 +230,7 @@ public class LocationMap : MonoBehaviour
                     TileImageInfo info = TileMaps[i + TileColumn * (TileRow - 1)];
                     info.Go.transform.localPosition += new Vector3(0, TileWidthAndHeigth * TileRow * TileScale, 0);
                     info.TileX = x;
-                    info.TileX = y;
+                    info.TileY = y;
 
                     StartCoroutine(Location.SetMap(x, y, info.Go.GetComponent<Image>(), TileZoom));
                     x++;
@@ -213,7 +255,7 @@ public class LocationMap : MonoBehaviour
                     TileImageInfo info = TileMaps[i];
                     info.Go.transform.localPosition -= new Vector3(0, TileWidthAndHeigth * TileRow * TileScale, 0);
                     info.TileX = x;
-                    info.TileX = y;
+                    info.TileY = y;
 
                     StartCoroutine(Location.SetMap(x, y, info.Go.GetComponent<Image>(), TileZoom));
                     x++;
@@ -238,7 +280,7 @@ public class LocationMap : MonoBehaviour
                     TileImageInfo info = TileMaps[i * TileColumn + (TileColumn - 1)];
                     info.Go.transform.localPosition -= new Vector3(TileWidthAndHeigth * TileColumn * TileScale, 0, 0);
                     info.TileX = x;
-                    info.TileX = y;
+                    info.TileY = y;
 
                     StartCoroutine(Location.SetMap(x, y, info.Go.GetComponent<Image>(), TileZoom));
                     y++;
@@ -263,7 +305,7 @@ public class LocationMap : MonoBehaviour
                     TileImageInfo info = TileMaps[i * TileColumn];
                     info.Go.transform.localPosition += new Vector3(TileWidthAndHeigth * TileColumn * TileScale, 0, 0);
                     info.TileX = x;
-                    info.TileX = y;
+                    info.TileY = y;
 
                     StartCoroutine(Location.SetMap(x, y, info.Go.GetComponent<Image>(), TileZoom));
                     y++;
@@ -281,8 +323,6 @@ public class LocationMap : MonoBehaviour
                 break;
         }
 
-        //每次修改 释放资源
-        Resources.UnloadUnusedAssets();
     }
 
     private void OnDestroy()
