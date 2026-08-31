@@ -28,7 +28,15 @@ public class GameMgr : SingletonWithMono<GameMgr>
         GaoDeAPI.GetInstance().OnLocating();
         //this.TriggerEvent(EventName.LocatedTheFstTime);
 
-        ARGroundPlane.GetInstance().planeFinder = GameObject.FindObjectOfType<PlaneFinderBehaviour>();
-        ARGroundPlane.GetInstance().planeFinder.gameObject.SetActive(false);//使PlaneFinder先失活，等进入AR导航时再开启
+        PlaneFinderBehaviour planeFinder = GameObject.FindObjectOfType<PlaneFinderBehaviour>();
+        ARGroundPlane.GetInstance().planeFinder = planeFinder;
+        if (planeFinder != null)
+        {
+            ARGroundPlane.GetInstance().SetPlaneFinderActive(false);//使PlaneFinder先失活，等进入AR导航时再开启
+        }
+        else
+        {
+            Debug.LogError("主场景中缺少 Vuforia PlaneFinderBehaviour。");
+        }
     }
 }
