@@ -6,6 +6,7 @@ using UnityEngine.Android;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 using LitJson;
+using System.Globalization;
 
 public enum Quadrant
 {
@@ -19,8 +20,6 @@ public enum Quadrant
 
 public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
 {
-    private const string key = "7b8f9443eed7ff041d9ad7d9dd9e87a2";//高德地图Web服务API类型key
-
     private string longitude;//unity坐标经度
     private string latitude;//unity坐标纬度
     private string GDlongitude = "113.295082";//高德坐标经度
@@ -41,6 +40,9 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
     private bool isGuiding = false;//是否正在导航
     private bool isARGuiding = false;//是否正在AR导航
     private bool isLocating = false;//是否此次操作为定位
+    private bool isLocatingInProgress;
+    private bool isDirectionRequestInProgress;
+    private bool hasValidLocation;
 
     public string GetLongitude { get { return longitude; } }
     public string GetLatitude { get { return latitude; } }
@@ -48,6 +50,7 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
     public string GetGDlatitude { get { return GDlatitude; } }
     public bool IsARGuiding { set { isARGuiding = value; } }
     public bool IsLocating { set { isLocating = value; } }
+    public bool HasValidLocation { get { return hasValidLocation; } }
     public LineRenderer LineRendererInMap { get { return lineRendererInMap; } }
     public LineRenderer LineRendererInWorld { set { lineRendererInWorld = value; } }
 
@@ -73,6 +76,12 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
 
     private void StartGuidingDirection(object sender, EventArgs e)
     {
+        if (!IsDestinationValid())
+        {
+            ShowMessage("请先选择目的地。");
+            return;
+        }
+
         isGuiding = true;
         InvokeRepeating("OnDirection", 0, 3f);
     }
@@ -88,10 +97,9 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
     /// </summary>
     public void OnLocating()
     {
-        // 允许定位
-        if (StartGPS())
+        if (!isLocatingInProgress)
         {
-            StartCoroutine(GPS());
+            StartCoroutine(Locate());
         }
     }
 
@@ -103,20 +111,62 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
     /// </summary>
     public void OnDirection()
     {
-        //1.获取当前位置坐标
-        OnLocating();
-        //2.获取规划信息
+        if (!isDirectionRequestInProgress && IsDestinationValid())
+        {
+            StartCoroutine(RefreshDirection());
+        }
+    }
+
+    private IEnumerator RefreshDirection()
+    {
+        isDirectionRequestInProgress = true;
+
+        string key;
+        string keyError;
+        if (!AppSecrets.TryGetAmapWebServiceKey(out key, out keyError))
+        {
+            ShowMessage(keyError);
+            isDirectionRequestInProgress = false;
+            yield break;
+        }
+
 #if UNITY_EDITOR
-        StartCoroutine(Direction(
-            "https://restapi.amap.com/v5/direction/walking?origin=113.295082,23.138099&destination=" +
-            Info.DesCoord(InfoPanel.desIndex).x.ToString() + "," + Info.DesCoord(InfoPanel.desIndex).y.ToString() +
-            "&show_fields=polyline&key=" + key));
+        GDlongitude = "113.295082";
+        GDlatitude = "23.138099";
+        hasValidLocation = true;
 #else
-        StartCoroutine(Direction(
-            "https://restapi.amap.com/v5/direction/walking?origin=" + GDlongitude + "," + GDlatitude + "&destination=" +
-            Info.DesCoord(InfoPanel.desIndex).x.ToString() + "," + Info.DesCoord(InfoPanel.desIndex).y.ToString() +
-            "&show_fields=polyline&key=" + key));
+        if (isLocatingInProgress)
+        {
+            while (isLocatingInProgress)
+            {
+                yield return null;
+            }
+        }
+        else
+        {
+            yield return Locate();
+        }
+
+        if (!hasValidLocation)
+        {
+            isDirectionRequestInProgress = false;
+            yield break;
+        }
 #endif
+
+        if (!isGuiding)
+        {
+            isDirectionRequestInProgress = false;
+            yield break;
+        }
+
+        Vector2 destination = Info.DesCoord(InfoPanel.desIndex);
+        string url = "https://restapi.amap.com/v5/direction/walking?origin=" + GDlongitude + "," + GDlatitude +
+                     "&destination=" + destination.x.ToString(CultureInfo.InvariantCulture) + "," +
+                     destination.y.ToString(CultureInfo.InvariantCulture) +
+                     "&show_fields=polyline&key=" + UnityWebRequest.EscapeURL(key);
+        yield return Direction(url);
+        isDirectionRequestInProgress = false;
     }
 
     /// <summary>
@@ -124,34 +174,80 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
     /// </summary>
     private void OnSearching()
     {
+        string key;
+        string keyError;
+        if (!AppSecrets.TryGetAmapWebServiceKey(out key, out keyError))
+        {
+            ShowMessage(keyError);
+            return;
+        }
+
         StartCoroutine(Inputtips(
-            "https://restapi.amap.com/v3/assistant/inputtips?output=json&city=020&keywords=" + search.text +
-            "&location=" + GDlongitude + "," + GDlatitude + "&citylimit=true&datatype=poi&key=" + key));
+            "https://restapi.amap.com/v3/assistant/inputtips?output=json&city=020&keywords=" +
+            UnityWebRequest.EscapeURL(search.text) + "&location=" + GDlongitude + "," + GDlatitude +
+            "&citylimit=true&datatype=poi&key=" + UnityWebRequest.EscapeURL(key)));
     }
 
     /// <summary>
     /// 手机请求获取GPS定位权限
     /// </summary>
     /// <returns></returns>
-    private bool StartGPS()
+    private IEnumerator Locate()
     {
+        isLocatingInProgress = true;
+
+#if UNITY_EDITOR
+        GDlongitude = "113.295082";
+        GDlatitude = "23.138099";
+        Location.mLatLng = new LatLng(113.295082d, 23.138099d);
+        hasValidLocation = true;
+        isLocatingInProgress = false;
+        if (isLocating)
+        {
+            ShowMessage("编辑器模式使用黄花岗公园测试坐标。");
+            isLocating = false;
+        }
+        yield break;
+#endif
+
+#if UNITY_ANDROID && !UNITY_EDITOR
         if (!Permission.HasUserAuthorizedPermission(Permission.FineLocation))
         {
             Permission.RequestUserPermission(Permission.FineLocation);
+            float permissionTimeout = 15f;
+            while (!Permission.HasUserAuthorizedPermission(Permission.FineLocation) && permissionTimeout > 0f)
+            {
+                permissionTimeout -= Time.unscaledDeltaTime;
+                yield return null;
+            }
+
+            if (!Permission.HasUserAuthorizedPermission(Permission.FineLocation))
+            {
+                hasValidLocation = false;
+                isLocatingInProgress = false;
+                ShowMessage("未获得定位权限，无法进行导航。");
+                yield break;
+            }
         }
-        return true;
+#endif
+
+        yield return GPS();
+        isLocatingInProgress = false;
+        if (!hasValidLocation)
+        {
+            isLocating = false;
+        }
     }
 
     private IEnumerator GPS()
     {
-        //gps.text = "开始获取GPS信息";
         Debug.Log("开始获取GPS信息");
+        hasValidLocation = false;
 
         // 检查位置服务是否可用
         if (!Input.location.isEnabledByUser)
         {
-            //gps.text = "位置服务不可用";
-            //Debug.Log("位置服务不可用");
+            ShowMessage("位置服务不可用，请开启系统定位服务。");
             yield break;
         }
 
@@ -173,16 +269,18 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
         // 服务初始化超时
         if (maxWait < 1)
         {
-            //gps.text = "服务初始化超时";
             Debug.Log("服务初始化超时");
+            Input.location.Stop();
+            ShowMessage("定位初始化超时，请稍后重试。");
             yield break;
         }
 
         // 连接失败
         if (Input.location.status == LocationServiceStatus.Failed)
         {
-            //gps.text = "无法确定设备位置";
             Debug.Log("无法确定设备位置");
+            Input.location.Stop();
+            ShowMessage("无法确定设备位置。");
             yield break;
         }
         else
@@ -195,12 +293,21 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
                 "垂直精度：" + Input.location.lastData.verticalAccuracy + "\n" +
                 "时间戳：" + Input.location.lastData.timestamp;*/
 
-            longitude = Input.location.lastData.longitude.ToString();//GPS经度
-            latitude = Input.location.lastData.latitude.ToString();//GPS纬度
+            longitude = Input.location.lastData.longitude.ToString("0.000000", CultureInfo.InvariantCulture);//GPS经度
+            latitude = Input.location.lastData.latitude.ToString("0.000000", CultureInfo.InvariantCulture);//GPS纬度
 
-            StartCoroutine(Convert(
+            string key;
+            string keyError;
+            if (!AppSecrets.TryGetAmapWebServiceKey(out key, out keyError))
+            {
+                Input.location.Stop();
+                ShowMessage(keyError);
+                yield break;
+            }
+
+            yield return Convert(
                 "https://restapi.amap.com/v3/assistant/coordinate/convert?locations=" + longitude + "," + latitude +
-                "&coordsys=gps&output=json&key=" + key));
+                "&coordsys=gps&output=json&key=" + UnityWebRequest.EscapeURL(key));
         }
         // 停止服务，如果没必要继续更新位置
         Input.location.Stop();
@@ -215,62 +322,23 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
     {
         using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
         {
-            //Request and wait for the desired page
+            webRequest.timeout = 15;
             yield return webRequest.SendWebRequest();
 
-            string[] pages = url.Split('/');
-            int page = pages.Length - 1;
-
-            if (webRequest.result == UnityWebRequest.Result.ConnectionError)
+            if (webRequest.result != UnityWebRequest.Result.Success)
             {
-                Debug.Log(webRequest.result.ToString());
-            }
-            else
-            {
-                JsonData jd = JsonMapper.ToObject(webRequest.downloadHandler.text);
-                int index = jd["locations"].ToString().IndexOf(",");
-                GDlongitude = jd["locations"].ToString().Substring(0, index);
-                GDlatitude = jd["locations"].ToString().Substring(index + 1);
-                //高德经纬度坐标小数点后不得超过6位
-                //此处更新高德位置坐标
-                GDlongitude = String.Format("{0:0.000000}", float.Parse(GDlongitude));//高德经度
-                GDlatitude = String.Format("{0:0.000000}", float.Parse(GDlatitude));//高德纬度
-                //Debug.Log("GPS经度:" + longitude + "GPS纬度:" + latitude);
-                //Debug.Log("高德经度:" + GDlongitude + "高德纬度:" + GDlatitude);
-
-                /*if (!isGuiding)//如果不是正在导航而触发坐标转换，即是定位
-                {
-                    this.TriggerEvent(EventName.ShowNotification, new ShowNotificationArgs//触发ShowNotification事件
-                    {
-                        message =
-                    "已定位！\nGPS经度：" + longitude + "\nGPS纬度：" + latitude + "\n高德经度：" + GDlongitude + "\n高德纬度：" + GDlatitude,
-                        isBtnOn = false,
-                        autoOff = true
-                    });
-                }*/
-
-                if (isLocating)
-                {
-                    this.TriggerEvent(EventName.ShowNotification, new ShowNotificationArgs//触发ShowNotification事件
-                    {
-                        message =
-                    "已定位！\nGPS经度：" + longitude + "\nGPS纬度：" + latitude + "\n高德经度：" + GDlongitude + "\n高德纬度：" + GDlatitude,
-                        isBtnOn = false,
-                        autoOff = true
-                    });
-                    isLocating = false;
-                }
-
-                /*if (isFstTime)//如果是刚打开应用，初始化瓦片地图，之后不再更新
-                {
-                    this.TriggerEvent(EventName.LocatedTheFstTime);//触发LocatedTheFstTime事件
-                    isFstTime = false;
-                }*/
+                ShowRequestError("坐标转换", webRequest);
                 yield break;
+            }
 
-                /*yield return StartCoroutine(Regeo(
-                "https://restapi.amap.com/v3/geocode/regeo?output=json&location=" + GDlongitude + "," + GDlatitude +
-                "&key=" + key));*/
+            try
+            {
+                ApplyConvertedLocation(webRequest.downloadHandler.text);
+            }
+            catch (Exception exception)
+            {
+                Debug.LogError("解析高德坐标转换结果失败：" + exception);
+                ShowMessage("无法解析定位结果，请稍后重试。");
             }
         }
     }
@@ -313,75 +381,28 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
     {
         using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
         {
-            // Request and wait for the desired page
+            webRequest.timeout = 15;
             yield return webRequest.SendWebRequest();
 
-            string[] pages = url.Split('/');
-            int page = pages.Length - 1;
-
-            if (webRequest.result == UnityWebRequest.Result.ConnectionError)
+            if (!isGuiding)
             {
-                Debug.Log(webRequest.result.ToString());
-            }
-            else
-            {
-                //定位与终点距离小于20米，判定为到达目的地
-                if (Conversion.GetDistance(Info.DesCoord(InfoPanel.desIndex).y, Info.DesCoord(InfoPanel.desIndex).x,
-                    float.Parse(GDlatitude), float.Parse(GDlongitude)) < 20)
-                {
-                    this.TriggerEvent(EventName.ShowNotification, new ShowNotificationArgs//触发ShowNotification事件
-                    {
-                        message = "已到达\n" + Info.DesInfo(InfoPanel.desIndex),
-                        isBtnOn = true,//开启确认按钮
-                        autoOff = false//信息框手动关闭
-                    });
-                    this.TriggerEvent(EventName.EndGuidingDirection);//触发事件，停止路径规划
-                    this.TriggerEvent(EventName.ChangeModeToARGuidingType, new ChangeModeToARGuidingType
-                    {
-                        modeType = ModeToAR_Type.Arrived
-                    });
-                    yield break;//后面的代码不再执行
-                }
-
-                JsonData jd = JsonMapper.ToObject(webRequest.downloadHandler.text);
-                //Debug.Log(jd["infocode"].ToString());
-                //只需要获取路径规划的第一条数据即可（因为位置是不断刷新的，后面的数据用不到）
-                this.TriggerEvent(EventName.UpdateGuidingInfo, new UpdateGuidingInfoArgs//触发事件UpdateGuidingInfo
-                {
-                    guidingText = jd["route"]["paths"][0]["steps"][0]["instruction"].ToString(),//获取步行指示
-                    desName = Info.DesInfo(InfoPanel.desIndex),//获取目的地名称
-                    disMiles = jd["route"]["paths"][0]["distance"].ToString()//获取剩余距离
-                });
-
-                //polyline在json中的格式：
-                //"polyline":"116.46658,39.995686;116.46694,39.995686;116.46694,39.995686;116.467665,39.995686"
-
-                List<Vector3> waypoints = new List<Vector3>();//二维地图坐标点列表
-                Vector2 point;
-                Vector3 pnt;
-                for (int i = 0; i < jd["route"]["paths"][0]["steps"].Count; i++)//处理每一step中的polyline
-                {
-                    string[] polyline = jd["route"]["paths"][0]["steps"][i]["polyline"].ToString().Split(';');//将每一对坐标分开
-
-                    for (int j = i == 0 ? 0 : 1; j < polyline.Length; j++)//处理每一polyline中的每个点
-                    {
-                        string[] points = polyline[j].Split(',');//将每个点的经纬坐标分开
-                        float lng = float.Parse(points[0]);//经度
-                        float lat = float.Parse(points[1]);//纬度
-                        point = new Vector2(lng, lat);
-                        waypoints.Add(Conversion.GetWorldPoint(point));//通过Conversion类将经纬度转换为世界坐标
-                        if (i == 0 && j == 0)//将第一个点用作AR导航路径的绘制
-                        {
-                            pnt = new Vector3(lng, 0, lat);
-                            if (isARGuiding)
-                            {
-                                DrawRouteInWorld(pnt);//绘制AR导航路径
-                            }
-                        }
-                    }
-                }
-                DrawRouteInMap(waypoints);//绘制二维地图路径
                 yield break;
+            }
+
+            if (webRequest.result != UnityWebRequest.Result.Success)
+            {
+                ShowRequestError("步行路线规划", webRequest);
+                yield break;
+            }
+
+            try
+            {
+                ProcessDirectionResponse(webRequest.downloadHandler.text);
+            }
+            catch (Exception exception)
+            {
+                Debug.LogError("解析高德步行路线失败：" + exception);
+                ShowMessage("无法解析步行路线，请稍后重试。");
             }
         }
     }
@@ -434,6 +455,12 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
     /// <param name="waypoints"></param>
     public void DrawRouteInMap(List<Vector3> waypoints)
     {
+        if (lineRendererInMap == null)
+        {
+            Debug.LogWarning("二维路线对象尚未加载完成。");
+            return;
+        }
+
         lineRendererInMap.positionCount = waypoints.Count;
 
         for (int i = 0; i < lineRendererInMap.positionCount; i++)
@@ -516,8 +543,157 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
         return 0;
     }
 
+    private static bool IsDestinationValid()
+    {
+        return InfoPanel.desIndex >= 1 && InfoPanel.desIndex <= 5;
+    }
+
+    private void ShowMessage(string message)
+    {
+        this.TriggerEvent(EventName.ShowNotification, new ShowNotificationArgs
+        {
+            message = message,
+            isBtnOn = false,
+            autoOff = true
+        });
+    }
+
+    private void ShowRequestError(string operation, UnityWebRequest request)
+    {
+        Debug.LogError(operation + "失败：" + request.responseCode + " " + request.error);
+        ShowMessage(operation + "失败，请检查网络后重试。");
+    }
+
+    private static string GetApiError(JsonData response)
+    {
+        if (response == null)
+        {
+            return string.Empty;
+        }
+
+        try
+        {
+            string info = response["info"].ToString();
+            return string.IsNullOrEmpty(info) ? string.Empty : "（" + info + "）";
+        }
+        catch
+        {
+            return string.Empty;
+        }
+    }
+
+    private void ProcessDirectionResponse(string responseText)
+    {
+        JsonData jd = JsonMapper.ToObject(responseText);
+        if (jd["status"].ToString() != "1" || jd["route"] == null ||
+            jd["route"]["paths"] == null || jd["route"]["paths"].Count == 0 ||
+            jd["route"]["paths"][0]["steps"] == null || jd["route"]["paths"][0]["steps"].Count == 0)
+        {
+            ShowMessage("未获取到可用的步行路线。" + GetApiError(jd));
+            return;
+        }
+
+        if (Conversion.GetDistance(Info.DesCoord(InfoPanel.desIndex).y, Info.DesCoord(InfoPanel.desIndex).x,
+                float.Parse(GDlatitude, CultureInfo.InvariantCulture),
+                float.Parse(GDlongitude, CultureInfo.InvariantCulture)) < 20)
+        {
+            this.TriggerEvent(EventName.ShowNotification, new ShowNotificationArgs
+            {
+                message = "已到达\n" + Info.DesInfo(InfoPanel.desIndex),
+                isBtnOn = true,
+                autoOff = false
+            });
+            this.TriggerEvent(EventName.EndGuidingDirection);
+            this.TriggerEvent(EventName.ChangeModeToARGuidingType, new ChangeModeToARGuidingType
+            {
+                modeType = ModeToAR_Type.Arrived
+            });
+            return;
+        }
+
+        JsonData path = jd["route"]["paths"][0];
+        this.TriggerEvent(EventName.UpdateGuidingInfo, new UpdateGuidingInfoArgs
+        {
+            guidingText = path["steps"][0]["instruction"].ToString(),
+            desName = Info.DesInfo(InfoPanel.desIndex),
+            disMiles = path["distance"].ToString()
+        });
+
+        List<Vector3> waypoints = new List<Vector3>();
+        for (int i = 0; i < path["steps"].Count; i++)
+        {
+            string[] polyline = path["steps"][i]["polyline"].ToString().Split(';');
+            for (int j = i == 0 ? 0 : 1; j < polyline.Length; j++)
+            {
+                string[] points = polyline[j].Split(',');
+                if (points.Length != 2)
+                {
+                    continue;
+                }
+
+                float lng;
+                float lat;
+                if (!float.TryParse(points[0], NumberStyles.Float, CultureInfo.InvariantCulture, out lng) ||
+                    !float.TryParse(points[1], NumberStyles.Float, CultureInfo.InvariantCulture, out lat))
+                {
+                    continue;
+                }
+
+                waypoints.Add(Conversion.GetWorldPoint(new Vector2(lng, lat)));
+                if (i == 0 && j == 0 && isARGuiding)
+                {
+                    DrawRouteInWorld(new Vector3(lng, 0, lat));
+                }
+            }
+        }
+
+        DrawRouteInMap(waypoints);
+    }
+
+    private void ApplyConvertedLocation(string responseText)
+    {
+        JsonData jd = JsonMapper.ToObject(responseText);
+        if (jd["status"].ToString() != "1" || jd["locations"] == null)
+        {
+            ShowMessage("高德坐标转换失败。" + GetApiError(jd));
+            return;
+        }
+
+        string[] convertedLocation = jd["locations"].ToString().Split(',');
+        if (convertedLocation.Length != 2)
+        {
+            ShowMessage("高德坐标转换返回了无效坐标。");
+            return;
+        }
+
+        double convertedLongitude;
+        double convertedLatitude;
+        if (!double.TryParse(convertedLocation[0], NumberStyles.Float, CultureInfo.InvariantCulture,
+                out convertedLongitude) ||
+            !double.TryParse(convertedLocation[1], NumberStyles.Float, CultureInfo.InvariantCulture,
+                out convertedLatitude))
+        {
+            ShowMessage("高德坐标转换返回了无法解析的坐标。");
+            return;
+        }
+
+        GDlongitude = convertedLongitude.ToString("0.000000", CultureInfo.InvariantCulture);
+        GDlatitude = convertedLatitude.ToString("0.000000", CultureInfo.InvariantCulture);
+        Location.mLatLng = new LatLng(convertedLongitude, convertedLatitude);
+        hasValidLocation = true;
+
+        if (isLocating)
+        {
+            ShowMessage("已定位！\nGPS经度：" + longitude + "\nGPS纬度：" + latitude +
+                        "\n高德经度：" + GDlongitude + "\n高德纬度：" + GDlatitude);
+            isLocating = false;
+        }
+    }
+
     private void OnDestroy()
     {
+        CancelInvoke("OnDirection");
+        StopAllCoroutines();
         EventCenter.GetInstance().RemoveEventListener(EventName.StartGuidingDirection, StartGuidingDirection);//移除事件
         EventCenter.GetInstance().RemoveEventListener(EventName.EndGuidingDirection, EndGuidingDirection);//移除事件
     }
