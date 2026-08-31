@@ -6,24 +6,34 @@ using UnityEngine.UI;
 
 public class Location
 {
-    //public static LatLng mLatLng = null;
+    // GPS/高德定位完成前使用的园区兜底中心点。
     public static LatLng mLatLng = new LatLng(113.295128d, 23.139692d);
 
     public static IEnumerator SetMap(int x, int y, Image image, int zoom)
     {
-        string _path = string.Format("http://webrd01.is.autonavi.com/appmaptile?x={0}&y={1}&z={2}&lang=zh_cn&size=1&scale=1&style=8", x, y, zoom);
+        string path = string.Format(
+            "https://webrd01.is.autonavi.com/appmaptile?x={0}&y={1}&z={2}&lang=zh_cn&size=1&scale=1&style=8",
+            x, y, zoom);
 
-        //string.Format("http://online1.map.bdimg.com/onlinelabel/?qt=tile&x={0}&y={1}&z=18", x, y);
-        //string.Format("https://wprd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&style=7&x={0}&y={1}&z=16&scl=1&ltype=1", x, y);
-
-        WWW www = new WWW(_path);
-        while (!www.isDone)
+        using (UnityWebRequest webRequest = UnityWebRequestTexture.GetTexture(path))
         {
-            yield return null;
+            webRequest.timeout = 15;
+            yield return webRequest.SendWebRequest();
+            if (webRequest.result != UnityWebRequest.Result.Success)
+            {
+                Debug.LogWarning("地图瓦片加载失败：" + webRequest.responseCode + " " + webRequest.error);
+                yield break;
+            }
+
+            Texture2D texture = DownloadHandlerTexture.GetContent(webRequest);
+            if (texture == null || image == null)
+            {
+                yield break;
+            }
+
+            image.sprite = Sprite.Create(texture,
+                new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
         }
-        image.sprite = Sprite.Create(www.texture, new Rect(0, 0, LocationMap.TileWidthAndHeigth, LocationMap.TileWidthAndHeigth), new Vector2(0.5f, 0.5f));//www.texture;SpriteRenderer.sprite.pivot
-        //MonoMgr.GetInstance().StartCoroutine(PostSprite(_path, image));
-        //yield break;
     }
 
     public static void LoadSpriteByte(byte[] path, Image image)
@@ -155,12 +165,24 @@ public class Location
         double x = ((latlng.Longitude + 180) / 360) * size;
         x = x * 256 % 256;
         double lat_rad = latlng.Latitude * Math.PI / 180;
-        double y = (2 - Math.Log(Math.Tan(lat_rad) + 1 / Math.Cos(lat_rad)) / Math.PI) / 2;
+        double y = (1 - Math.Log(Math.Tan(lat_rad) + 1 / Math.Cos(lat_rad)) / Math.PI) / 2;
         y = y * size * 256 % 256;
 
         float PixelX = (float)x;
         float PixelY = (float)y;
         return new PixelXY(PixelX, PixelY);
+    }
+
+    /// <summary>
+    /// 将 Web Mercator 全局像素坐标转换为经纬度。
+    /// </summary>
+    public static LatLng GlobalPixelToLatLng(double pixelX, double pixelY, int zoom)
+    {
+        double mapSize = LocationMap.TileWidthAndHeigth * Math.Pow(2, zoom);
+        double longitude = pixelX / mapSize * 360d - 180d;
+        double mercatorY = Math.PI - 2d * Math.PI * pixelY / mapSize;
+        double latitude = Math.Atan(Math.Sinh(mercatorY)) * 180d / Math.PI;
+        return new LatLng(longitude, latitude);
     }
 }
 
@@ -230,13 +252,17 @@ public static class Conversion
     public static double x_offset
     {
         get { return Math.Abs(TopLeftCoord.Longitude-BottomRightCoord.Longitude); }
-        set { x_offset = value; }
     }
 
     public static double z_offset
     {
         get { return Math.Abs(TopLeftCoord.Latitude-BottomRightCoord.Latitude); }
-        set { z_offset = value; }
+    }
+
+    public static void ConfigureMapBounds(LatLng topLeft, LatLng bottomRight)
+    {
+        TopLeftCoord = topLeft;
+        BottomRightCoord = bottomRight;
     }
 
     /// <summary>
@@ -261,10 +287,10 @@ public static class Conversion
     /// <returns></returns>
     public static Vector3 GetLatLon(Vector3 curPoint)
     {
-        double _x_offset = (curPoint.x - BottomRightPoint.x) * x_offset / u_offset;
-        double _z_offset = (curPoint.z - TopLeftPoint.y) * z_offset / u_offset;
-        double resultX = _x_offset + BottomRightCoord.Longitude;
-        double resultZ = _z_offset + TopLeftCoord.Latitude;
+        double _x_offset = (curPoint.x - TopLeftPoint.x) * x_offset / u_offset;
+        double _z_offset = (curPoint.z - BottomRightPoint.y) * z_offset / u_offset;
+        double resultX = _x_offset + TopLeftCoord.Longitude;
+        double resultZ = _z_offset + BottomRightCoord.Latitude;
         return new Vector2((float)resultX, (float)resultZ);
     }
 
