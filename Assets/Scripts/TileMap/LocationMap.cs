@@ -108,7 +108,7 @@ public class LocationMap : MonoBehaviour
         }
 
 #if UNITY_EDITOR
-        latLng = new LatLng(113.295128d, 23.139692d);
+        latLng = NavigationDefaults.CreateParkCenter();
 #endif
 
         RebuildMap(latLng);

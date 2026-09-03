@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class Location
 {
     // GPS/高德定位完成前使用的园区兜底中心点。
-    public static LatLng mLatLng = new LatLng(113.295128d, 23.139692d);
+    public static LatLng mLatLng = NavigationDefaults.CreateParkCenter();
 
     public static IEnumerator SetMap(int x, int y, Image image, int zoom)
     {
@@ -73,41 +73,6 @@ public class Location
                 LoadSpriteByte(webRequest.downloadHandler.data, image);
                 webRequest.Dispose();
             }
-        }
-    }
-
-    public static IEnumerator InitLocationPos()
-    {
-#if !UNITY_EDITOR
-        if (!Input.location.isEnabledByUser)
-        {
-            Debug.LogError("Location is not enabled");
-            yield break;
-        }
-#endif
-        Input.location.Start(1, 1);
-        int maxWait = 30;
-        while (Input.location.status == LocationServiceStatus.Initializing && maxWait > 0)
-        {
-            yield return new WaitForSeconds(1);
-            maxWait--;
-        }
-        if (maxWait < 1)
-        {
-            Debug.LogError("Location time out");
-            yield break;
-        }
-        if (Input.location.status == LocationServiceStatus.Failed)
-        {
-            yield break;
-        }
-        else
-        {
-            //高德瓦片地图使用的是高德坐标
-            //mLatLng = new LatLng(double.Parse(GaoDeAPI.GetInstance().GetGDlongitude), double.Parse(GaoDeAPI.GetInstance().GetGDlatitude));
-            //mLatLng = new LatLng(113.245600d, 23.070910d);
-            mLatLng = new LatLng(113.295128d, 23.139692d);
-            Input.location.Stop();
         }
     }
 
