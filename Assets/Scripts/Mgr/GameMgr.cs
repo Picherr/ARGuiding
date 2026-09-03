@@ -3,8 +3,8 @@ using UnityEngine;
 using Vuforia;
 
 /// <summary>
-/// ÓÎÏ·×Ü¹ÜÀíÆ÷
-/// ¸ºÔğÓ¦ÓÃ¿ªÆôÊ±µÄ³õÊ¼»¯¹¤×÷
+/// æ¸¸æˆæ€»ç®¡ç†å™¨
+/// è´Ÿè´£åº”ç”¨å¼€å¯æ—¶çš„åˆå§‹åŒ–å·¥ä½œ
 /// </summary>
 public class GameMgr : SingletonWithMono<GameMgr>
 {
@@ -12,19 +12,19 @@ public class GameMgr : SingletonWithMono<GameMgr>
     {
         base.Awake();
 
-        //³õÊ¼»¯Ãæ°å
+        //åˆå§‹åŒ–é¢æ¿
         UIManager.GetInstance().ShowPanel<MapPanel>("MapPanel", UI_Layer.Bot);
         UIManager.GetInstance().ShowPanel<GuidingPanel>("GuidingPanel", UI_Layer.Mid);
         UIManager.GetInstance().ShowPanel<InfoPanel>("InfoPanel", UI_Layer.Top);
         UIManager.GetInstance().ShowPanel<SystemPanel>("SystemPanel", UI_Layer.System);
 
-        //³¡¾°ÖĞ´´½¨UICameraÓÃÓÚäÖÈ¾LineRendererInMap
+        //åœºæ™¯ä¸­åˆ›å»ºUICameraç”¨äºæ¸²æŸ“LineRendererInMap
         ResMgr.GetInstance().LoadAsync<GameObject>("Prefabs/RouteCamera", (camera) =>
         {
             camera.name = "RouteCamera";
         });
 
-        //´ò¿ª³ÌĞòºóÊ×´Î×Ô¶¯¶¨Î»£¬Ë³±ã³õÊ¼»¯GaoDeAPI
+        //æ‰“å¼€ç¨‹åºåé¦–æ¬¡è‡ªåŠ¨å®šä½ï¼Œé¡ºä¾¿åˆå§‹åŒ–GaoDeAPI
         GaoDeAPI.GetInstance().OnLocating();
         //this.TriggerEvent(EventName.LocatedTheFstTime);
 
@@ -32,11 +32,11 @@ public class GameMgr : SingletonWithMono<GameMgr>
         ARGroundPlane.GetInstance().planeFinder = planeFinder;
         if (planeFinder != null)
         {
-            ARGroundPlane.GetInstance().SetPlaneFinderActive(false);//Ê¹PlaneFinderÏÈÊ§»î£¬µÈ½øÈëARµ¼º½Ê±ÔÙ¿ªÆô
+            ARGroundPlane.GetInstance().SetPlaneFinderActive(false);//ä½¿PlaneFinderå…ˆå¤±æ´»ï¼Œç­‰è¿›å…¥ARå¯¼èˆªæ—¶å†å¼€å¯
         }
         else
         {
-            Debug.LogError("Ö÷³¡¾°ÖĞÈ±ÉÙ Vuforia PlaneFinderBehaviour¡£");
+            Debug.LogError("ä¸»åœºæ™¯ä¸­ç¼ºå°‘ Vuforia PlaneFinderBehaviourã€‚");
         }
     }
 }

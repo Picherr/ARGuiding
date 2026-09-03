@@ -5,10 +5,10 @@ using UnityEngine.UI;
 using System;
 public class Compass : MonoBehaviour
 {
-    float angle = 0;//¼ÇÂ¼±±·½¶ÈÊý
-    float tempAngle = 0;//ÁÙÊ±¼ÇÂ¼Êý¾ÝÀ´ÅÐ¶Ï½Ç¶È±ä»¯ÊÇ·ñ´óÓÚ5
+    float angle = 0;//è®°å½•åŒ—æ–¹åº¦æ•°
+    float tempAngle = 0;//ä¸´æ—¶è®°å½•æ•°æ®æ¥åˆ¤æ–­è§’åº¦å˜åŒ–æ˜¯å¦å¤§äºŽ5
 
-    public Image compass;//Ö¸ÄÏÕë
+    public Image compass;//æŒ‡å—é’ˆ
 
     private void Start()
     {
@@ -22,7 +22,7 @@ public class Compass : MonoBehaviour
         //The heading in degrees relative to the geographic North Pole. (Read Only)
         angle = Input.compass.trueHeading;
 
-        //Îª·ÀÖ¹¶¶¶¯£¬¶ÈÊý±ä»¯³¬¹ý5Ê±²Å¸³Öµ
+        //ä¸ºé˜²æ­¢æŠ–åŠ¨ï¼Œåº¦æ•°å˜åŒ–è¶…è¿‡5æ—¶æ‰èµ‹å€¼
         if (Mathf.Abs(tempAngle - angle) > 5)
         {
             tempAngle = angle;
@@ -34,27 +34,27 @@ public class Compass : MonoBehaviour
     // Update is called once per frame
     /*private void FixedUpdate()
     {
-        //ÈçºÎÈ·¶¨²ÎÕÕÎï
-        //µ±¶ÈÊýÎª  358-2¶È  ÊÖ»úµÄÕýÇ°·½¾ÍÊÇ±±·½
+        //å¦‚ä½•ç¡®å®šå‚ç…§ç‰©
+        //å½“åº¦æ•°ä¸º  358-2åº¦  æ‰‹æœºçš„æ­£å‰æ–¹å°±æ˜¯åŒ—æ–¹
 
         Input.location.Start();
-        text.text = " rawVector: " + Input.compass.rawVector.ToString();//ÓÃmicroteslas²âÁ¿µÄÔ­Ê¼µØ´ÅÊý¾Ý
+        text.text = " rawVector: " + Input.compass.rawVector.ToString();//ç”¨microteslasæµ‹é‡çš„åŽŸå§‹åœ°ç£æ•°æ®
 
-        //Ïà¶ÔÓ¦µØÀí±±¼«µÄ¶ÈÊý ÊÖ»úÍ·Õý¶Ô·½Ïò  ±±·½360/0   ¶«·½90     Î÷·½180    ÄÏ·½270  
+        //ç›¸å¯¹åº”åœ°ç†åŒ—æžçš„åº¦æ•° æ‰‹æœºå¤´æ­£å¯¹æ–¹å‘  åŒ—æ–¹360/0   ä¸œæ–¹90     è¥¿æ–¹180    å—æ–¹270
         text1.text = " trueHeading: " + Input.compass.trueHeading.ToString();
 
-        text2.text = " headingAccuracy: " + Input.compass.headingAccuracy.ToString(); //±êÌâ¶ÈÊýµÄ×¼È·¶È
-        text3.text = " magneticHeading: " + Input.compass.magneticHeading.ToString(); //Ïà¶ÔÓÚ´Å±±¼«µÄ¶ÈÊý
+        text2.text = " headingAccuracy: " + Input.compass.headingAccuracy.ToString(); //æ ‡é¢˜åº¦æ•°çš„å‡†ç¡®åº¦
+        text3.text = " magneticHeading: " + Input.compass.magneticHeading.ToString(); //ç›¸å¯¹äºŽç£åŒ—æžçš„åº¦æ•°
         angle = Input.compass.trueHeading;
 
         *//*trueHeading          image/z
-      ±±·½358  360 0 2                0
-       ¶«·½88  92                   90
-       ÄÏ·½269 272                 270
-       Î÷·½180                    180
+      åŒ—æ–¹358  360 0 2                0
+       ä¸œæ–¹88  92                   90
+       å—æ–¹269 272                 270
+       è¥¿æ–¹180                    180
         *//*
 
-        //Îª·ÀÖ¹¶¶¶¯  ¶ÈÊý±ä»¯³¬¹ý¶þµÄÊ±ºò²Å¸³Öµ
+        //ä¸ºé˜²æ­¢æŠ–åŠ¨  åº¦æ•°å˜åŒ–è¶…è¿‡äºŒçš„æ—¶å€™æ‰èµ‹å€¼
         if (Mathf.Abs(tempAngle - angle) > 5)
         {
             tempAngle = angle;

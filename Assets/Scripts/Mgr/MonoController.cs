@@ -2,10 +2,10 @@ using UnityEngine;
 using UnityEngine.Events;
 
 /// <summary>
-/// MonoµÄ¹ÜÀíÕß
-/// 1.ÉúÃüÖÜÆÚº¯Êı
-/// 2.ÊÂ¼ş
-/// 3.Ğ­³Ì
+/// Monoçš„ç®¡ç†è€…
+/// 1.ç”Ÿå‘½å‘¨æœŸå‡½æ•°
+/// 2.äº‹ä»¶
+/// 3.åç¨‹
 /// </summary>
 public class MonoController : MonoBehaviour
 {
@@ -27,7 +27,7 @@ public class MonoController : MonoBehaviour
     }
 
     /// <summary>
-    /// ¸øÍâ²¿Ìá¹©µÄÌí¼ÓÖ¡¸üĞÂÊÂ¼şµÄº¯Êı
+    /// ç»™å¤–éƒ¨æä¾›çš„æ·»åŠ å¸§æ›´æ–°äº‹ä»¶çš„å‡½æ•°
     /// </summary>
     /// <param name="fun"></param>
     public void AddUpdateListener(UnityAction fun)
@@ -36,7 +36,7 @@ public class MonoController : MonoBehaviour
     }
 
     /// <summary>
-    /// ¸øÍâ²¿Ìá¹©µÄÓÃÓÚÒÆ³ıÖ¡¸üĞÂÊÂ¼şµÄº¯Êı
+    /// ç»™å¤–éƒ¨æä¾›çš„ç”¨äºç§»é™¤å¸§æ›´æ–°äº‹ä»¶çš„å‡½æ•°
     /// </summary>
     /// <param name="fun"></param>
     public void RemoveUpdateListener(UnityAction fun)

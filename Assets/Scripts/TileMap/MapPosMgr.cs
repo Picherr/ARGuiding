@@ -6,26 +6,26 @@ public class MapPosMgr : MonoBehaviour//, IDragHandler, IBeginDragHandler, IEndD
     [SerializeField]
     private GameObject Map;
 
-    //ÉÏ´ÎÍÏ×§µÄÎ»ÖÃ
+    //ä¸Šæ¬¡æ‹–æ‹½çš„ä½ç½®
     Vector2 DragPos;
     private bool isDrag = false;
 
-    //¸üÐÂ µØÍ¼µÄ Î»ÖÃ±ß½ç
+    //æ›´æ–° åœ°å›¾çš„ ä½ç½®è¾¹ç•Œ
     private float lx;
     private float rx;
     private float ty;
     private float by;
 
-    //Ã¿´ÎÎ»ÖÃ±ä»¯´óÐ¡
+    //æ¯æ¬¡ä½ç½®å˜åŒ–å¤§å°
     private float changeSzie;
 
-    //ÊÇ·ñÒÆ¶¯
+    //æ˜¯å¦ç§»åŠ¨
     //private float DragFlag = 50f;
 
-    //µØÍ¼
+    //åœ°å›¾
     private LocationMap map;
 
-    //äÖÈ¾ÍßÆ¬µØÍ¼µÄÏà»ú
+    //æ¸²æŸ“ç“¦ç‰‡åœ°å›¾çš„ç›¸æœº
     private GameObject routeCamera;
 
     private void Start()
@@ -36,7 +36,7 @@ public class MapPosMgr : MonoBehaviour//, IDragHandler, IBeginDragHandler, IEndD
 
         changeSzie = LocationMap.TileWidthAndHeigth * LocationMap.TileScale;
 
-        //³õÊ¼»¯ ±ß½ç
+        //åˆå§‹åŒ– è¾¹ç•Œ
         lx = changeSzie;
         rx = -changeSzie;
         ty = -changeSzie;
@@ -47,7 +47,7 @@ public class MapPosMgr : MonoBehaviour//, IDragHandler, IBeginDragHandler, IEndD
 
     private void mapUpdate()
     {
-        //×¢Òâ Ã»ÓÐ»¬¶¯Ê± ²»¼ÆËã
+        //æ³¨æ„ æ²¡æœ‰æ»‘åŠ¨æ—¶ ä¸è®¡ç®—
         if (!isDrag) return;
 
         if (Map.transform.localPosition.x > lx)

@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class Location
 {
-    // GPS/¸ßµÂ¶¨Î»Íê³ÉÇ°Ê¹ÓÃµÄÔ°Çø¶µµ×ÖĞĞÄµã¡£
+    // GPS/é«˜å¾·å®šä½å®Œæˆå‰ä½¿ç”¨çš„å›­åŒºå…œåº•ä¸­å¿ƒç‚¹ã€‚
     public static LatLng mLatLng = new LatLng(113.295128d, 23.139692d);
 
     public static IEnumerator SetMap(int x, int y, Image image, int zoom)
@@ -21,7 +21,7 @@ public class Location
             yield return webRequest.SendWebRequest();
             if (webRequest.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogWarning("µØÍ¼ÍßÆ¬¼ÓÔØÊ§°Ü£º" + webRequest.responseCode + " " + webRequest.error);
+                Debug.LogWarning("åœ°å›¾ç“¦ç‰‡åŠ è½½å¤±è´¥ï¼š" + webRequest.responseCode + " " + webRequest.error);
                 yield break;
             }
 
@@ -103,7 +103,7 @@ public class Location
         }
         else
         {
-            //¸ßµÂÍßÆ¬µØÍ¼Ê¹ÓÃµÄÊÇ¸ßµÂ×ø±ê
+            //é«˜å¾·ç“¦ç‰‡åœ°å›¾ä½¿ç”¨çš„æ˜¯é«˜å¾·åæ ‡
             //mLatLng = new LatLng(double.Parse(GaoDeAPI.GetInstance().GetGDlongitude), double.Parse(GaoDeAPI.GetInstance().GetGDlatitude));
             //mLatLng = new LatLng(113.245600d, 23.070910d);
             mLatLng = new LatLng(113.295128d, 23.139692d);
@@ -112,7 +112,7 @@ public class Location
     }
 
     /// <summary>
-    /// ½«tile(ÍßÆ¬)×ø±êÏµ×ª»»ÎªLatLngt(µØÀí)×ø±êÏµ£¬pixelX£¬pixelYÎªÍ¼Æ¬Æ«ÒÆÏñËØ×ø±ê
+    /// å°†tile(ç“¦ç‰‡)åæ ‡ç³»è½¬æ¢ä¸ºLatLngt(åœ°ç†)åæ ‡ç³»ï¼ŒpixelXï¼ŒpixelYä¸ºå›¾ç‰‡åç§»åƒç´ åæ ‡
     /// </summary>
     /// <param name="tileX"></param>
     /// <param name="tileY"></param>
@@ -132,7 +132,7 @@ public class Location
     }
 
     /// <summary>
-    /// ½«LatLngtµØÀí×ø±êÏµ×ª»»ÎªtileÍßÆ¬×ø±êÏµ£¬pixelX£¬pixelYÎªÍ¼Æ¬Æ«ÒÆÏñËØ×ø±ê
+    /// å°†LatLngtåœ°ç†åæ ‡ç³»è½¬æ¢ä¸ºtileç“¦ç‰‡åæ ‡ç³»ï¼ŒpixelXï¼ŒpixelYä¸ºå›¾ç‰‡åç§»åƒç´ åæ ‡
     /// </summary>
     /// <param name="latlng"></param>
     /// <param name="zoom"></param>
@@ -154,7 +154,7 @@ public class Location
     }
 
     /// <summary>
-    /// ½«LatLngtµØÀí×ø±êÏµ×ª»»ÎªÏñËØ×ø±êÏµ
+    /// å°†LatLngtåœ°ç†åæ ‡ç³»è½¬æ¢ä¸ºåƒç´ åæ ‡ç³»
     /// </summary>
     /// <param name="latlng"></param>
     /// <param name="zoom"></param>
@@ -174,7 +174,7 @@ public class Location
     }
 
     /// <summary>
-    /// ½« Web Mercator È«¾ÖÏñËØ×ø±ê×ª»»Îª¾­Î³¶È¡£
+    /// å°† Web Mercator å…¨å±€åƒç´ åæ ‡è½¬æ¢ä¸ºç»çº¬åº¦ã€‚
     /// </summary>
     public static LatLng GlobalPixelToLatLng(double pixelX, double pixelY, int zoom)
     {
@@ -210,32 +210,32 @@ public class PixelXY
 }
 
 /// <summary>
-/// ×ø±ê×ª»»Àà-¸ßµÂ¾­Î³×ø±êÏµºÍUnityÊÀ½ç×ø±êÏµµÄ×ª»»
+/// åæ ‡è½¬æ¢ç±»-é«˜å¾·ç»çº¬åæ ‡ç³»å’ŒUnityä¸–ç•Œåæ ‡ç³»çš„è½¬æ¢
 /// </summary>
 public static class Conversion
 {
-    private const int TileSize = 256;//ÍßÆ¬ÇĞÍ¼´óĞ¡
+    private const int TileSize = 256;//ç“¦ç‰‡åˆ‡å›¾å¤§å°
     private const int EarthRadius = 6378137;
     private const double InitialResolution = 2 * Math.PI * EarthRadius / TileSize;
     private const double OriginShift = 2 * Math.PI * EarthRadius / 2;
 
-    //ÕâÁ½¸öµãÊÇÄ¿²âµÃµ½µÄ
-    //private static Vector2 bottomRightCoord = new Vector2(113.247890f, 23.068830f);//¶«ÄÏ½Ç¾­Î³¶È
-    //private static Vector2 topLeftCoord = new Vector2(113.242090f, 23.074180f);//Î÷±±½Ç¾­Î³¶È
-    private static LatLng bottomRightCoord=new LatLng(113.297355d, 23.137078d);//¶«ÄÏ½Ç¾­Î³¶È
-    private static LatLng topLeftCoord=new LatLng(113.291528d, 23.142402d);//Î÷±±½Ç¾­Î³¶È
+    //è¿™ä¸¤ä¸ªç‚¹æ˜¯ç›®æµ‹å¾—åˆ°çš„
+    //private static Vector2 bottomRightCoord = new Vector2(113.247890f, 23.068830f);//ä¸œå—è§’ç»çº¬åº¦
+    //private static Vector2 topLeftCoord = new Vector2(113.242090f, 23.074180f);//è¥¿åŒ—è§’ç»çº¬åº¦
+    private static LatLng bottomRightCoord=new LatLng(113.297355d, 23.137078d);//ä¸œå—è§’ç»çº¬åº¦
+    private static LatLng topLeftCoord=new LatLng(113.291528d, 23.142402d);//è¥¿åŒ—è§’ç»çº¬åº¦
 
-    //ÕâÁ½¸ö²îÖµÊÇÔÚ1080*1080µÄMapPanelÖĞµÄ¾­Î³¶È²îÖµ
-    //private const double x_offset = 0.00580d;//Ãæ°åÖĞµÄ¾­¶È²î
-    //private const double z_offset = 0.00535d;//Ãæ°åÖĞµÄÎ³¶È²î
-    private static double x_Offset;//Ãæ°åÖĞµÄ¾­¶È²î
-    private static double z_Offset;//Ãæ°åÖĞµÄÎ³¶È²î
+    //è¿™ä¸¤ä¸ªå·®å€¼æ˜¯åœ¨1080*1080çš„MapPanelä¸­çš„ç»çº¬åº¦å·®å€¼
+    //private const double x_offset = 0.00580d;//é¢æ¿ä¸­çš„ç»åº¦å·®
+    //private const double z_offset = 0.00535d;//é¢æ¿ä¸­çš„çº¬åº¦å·®
+    private static double x_Offset;//é¢æ¿ä¸­çš„ç»åº¦å·®
+    private static double z_Offset;//é¢æ¿ä¸­çš„çº¬åº¦å·®
 
-    //Õâ¸ö²îÖµÊÇMapPanelµÄ³¤¶È/¿í¶È
+    //è¿™ä¸ªå·®å€¼æ˜¯MapPanelçš„é•¿åº¦/å®½åº¦
     private const int u_offset = 1080;
 
-    private static Vector2 BottomRightPoint = new Vector2(1080, 920);//¶«ÄÏ½Ç×ø±ê
-    private static Vector2 TopLeftPoint = new Vector2(0, 2000);//Î÷±±½Ç×ø±ê
+    private static Vector2 BottomRightPoint = new Vector2(1080, 920);//ä¸œå—è§’åæ ‡
+    private static Vector2 TopLeftPoint = new Vector2(0, 2000);//è¥¿åŒ—è§’åæ ‡
 
     public static LatLng BottomRightCoord
     {
@@ -266,7 +266,7 @@ public static class Conversion
     }
 
     /// <summary>
-    /// ÓÉ¾­Î³¶ÈµÃµ½×ø±êµã
+    /// ç”±ç»çº¬åº¦å¾—åˆ°åæ ‡ç‚¹
     /// </summary>
     /// <param name="se"></param>
     /// <returns></returns>
@@ -274,14 +274,14 @@ public static class Conversion
     {
         double tempX = se.x - TopLeftCoord.Longitude;
         double tempZ = se.y - BottomRightCoord.Latitude;
-        double _tempX = tempX * u_offset / x_offset + TopLeftPoint.x;//¼ÆËãXÖá
-        double _tempZ = tempZ * u_offset / z_offset + BottomRightPoint.y;//¼ÆËãZÖá
-        //»ñÈ¡¸ÃµãÊÀ½ç×ø±ê
+        double _tempX = tempX * u_offset / x_offset + TopLeftPoint.x;//è®¡ç®—Xè½´
+        double _tempZ = tempZ * u_offset / z_offset + BottomRightPoint.y;//è®¡ç®—Zè½´
+        //è·å–è¯¥ç‚¹ä¸–ç•Œåæ ‡
         return new Vector3((float)_tempX, 0, (float)_tempZ);
     }
 
     /// <summary>
-    /// ÓÉÎ»ÖÃµãµÃµ½¾­Î³¶È
+    /// ç”±ä½ç½®ç‚¹å¾—åˆ°ç»çº¬åº¦
     /// </summary>
     /// <param name="curPoint"></param>
     /// <returns></returns>
@@ -295,13 +295,13 @@ public static class Conversion
     }
 
     /// <summary>
-    /// ¼ÆËãÁ½µãÎ»ÖÃµÄ¾àÀë£¬·µ»ØÁ½µãµÄ¾àÀë£¬µ¥Î»£ºÃ×
-    /// ¸Ã¹«Ê½ÓÉGOOGLEÌá¹©£¬Îó²îĞ¡ÓÚ0.2Ã×
+    /// è®¡ç®—ä¸¤ç‚¹ä½ç½®çš„è·ç¦»ï¼Œè¿”å›ä¸¤ç‚¹çš„è·ç¦»ï¼Œå•ä½ï¼šç±³
+    /// è¯¥å…¬å¼ç”±GOOGLEæä¾›ï¼Œè¯¯å·®å°äº0.2ç±³
     /// </summary>
-    /// <param name="lat1">ÆğµãÎ³¶È</param>
-    /// <param name="lng1">Æğµã¾­¶È</param>
-    /// <param name="lat2">ÖÕµãÎ³¶È</param>
-    /// <param name="lng2">ÖÕµã¾­¶È</param>
+    /// <param name="lat1">èµ·ç‚¹çº¬åº¦</param>
+    /// <param name="lng1">èµ·ç‚¹ç»åº¦</param>
+    /// <param name="lat2">ç»ˆç‚¹çº¬åº¦</param>
+    /// <param name="lng2">ç»ˆç‚¹ç»åº¦</param>
     /// <returns></returns>
     public static float GetDistance(float lat1, float lng1, float lat2, float lng2)
     {

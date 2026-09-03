@@ -6,26 +6,26 @@ using UnityEngine;
 using UnityEngine.Events;
 
 /// <summary>
-/// ±ãÓÚ´¥·¢ÊÂ¼şµÄÀ©Õ¹Àà
+/// ä¾¿äºè§¦å‘äº‹ä»¶çš„æ‰©å±•ç±»
 /// </summary>
 public static class EventTriggerExt
 {
     /// <summary>
-    /// ´¥·¢ÊÂ¼ş£¨ÎŞ²ÎÊı£©
+    /// è§¦å‘äº‹ä»¶ï¼ˆæ— å‚æ•°ï¼‰
     /// </summary>
-    /// <param name="sender">´¥·¢Ô´</param>
-    /// <param name="eventName">ÊÂ¼şÃû</param>
+    /// <param name="sender">è§¦å‘æº</param>
+    /// <param name="eventName">äº‹ä»¶å</param>
     public static void TriggerEvent(this object sender, EventName eventName)
     {
         EventCenter.GetInstance().TriggerEvent(eventName, sender);
     }
 
     /// <summary>
-    /// ´¥·¢ÊÂ¼ş£¨ÓĞ²ÎÊı£©
+    /// è§¦å‘äº‹ä»¶ï¼ˆæœ‰å‚æ•°ï¼‰
     /// </summary>
-    /// <param name="sender">´¥·¢Ô´</param>
-    /// <param name="eventName">ÊÂ¼şÃû</param>
-    /// <param name="args">ÊÂ¼ş²ÎÊı</param>
+    /// <param name="sender">è§¦å‘æº</param>
+    /// <param name="eventName">äº‹ä»¶å</param>
+    /// <param name="args">äº‹ä»¶å‚æ•°</param>
     public static void TriggerEvent(this object sender, EventName eventName, EventArgs args)
     {
         EventCenter.GetInstance().TriggerEvent(eventName, sender, args);
@@ -33,9 +33,9 @@ public static class EventTriggerExt
 }
 
 /// <summary>
-/// ÊÂ¼şÖĞĞÄÄ£¿é-µ¥ÀıÄ£Ê½¶ÔÏó
-/// 1.¹Û²ìÕßÄ£Ê½
-/// 2.Î¯ÍĞ
+/// äº‹ä»¶ä¸­å¿ƒæ¨¡å—-å•ä¾‹æ¨¡å¼å¯¹è±¡
+/// 1.è§‚å¯Ÿè€…æ¨¡å¼
+/// 2.å§”æ‰˜
 /// 3.Dictionary
 /// </summary>
 public class EventCenter : BaseManager<EventCenter>
@@ -43,10 +43,10 @@ public class EventCenter : BaseManager<EventCenter>
     private Dictionary<EventName, EventHandler> handlerDic = new Dictionary<EventName, EventHandler>();
 
     /// <summary>
-    /// Ìí¼ÓÒ»¸öÊÂ¼şµÄ¼àÌıÕß
+    /// æ·»åŠ ä¸€ä¸ªäº‹ä»¶çš„ç›‘å¬è€…
     /// </summary>
-    /// <param name="eventName">ÊÂ¼şÃû</param>
-    /// <param name="handler">ÊÂ¼ş´¦Àíº¯Êı</param>
+    /// <param name="eventName">äº‹ä»¶å</param>
+    /// <param name="handler">äº‹ä»¶å¤„ç†å‡½æ•°</param>
     public void AddEventListener(EventName eventName, EventHandler handler)
     {
         if (handlerDic.ContainsKey(eventName))
@@ -60,10 +60,10 @@ public class EventCenter : BaseManager<EventCenter>
     }
 
     /// <summary>
-    /// ÒÆ³ıÒ»¸öÊÂ¼şµÄ¼àÌıÕß
+    /// ç§»é™¤ä¸€ä¸ªäº‹ä»¶çš„ç›‘å¬è€…
     /// </summary>
-    /// <param name="eventName">ÊÂ¼şÃû</param>
-    /// <param name="handler">ÊÂ¼ş´¦Àíº¯Êı</param>
+    /// <param name="eventName">äº‹ä»¶å</param>
+    /// <param name="handler">äº‹ä»¶å¤„ç†å‡½æ•°</param>
     public void RemoveEventListener(EventName eventName, EventHandler handler)
     {
         if (handlerDic.ContainsKey(eventName))
@@ -73,10 +73,10 @@ public class EventCenter : BaseManager<EventCenter>
     }
 
     /// <summary>
-    /// ´¥·¢ÊÂ¼ş£¨ÎŞ²ÎÊı£©
+    /// è§¦å‘äº‹ä»¶ï¼ˆæ— å‚æ•°ï¼‰
     /// </summary>
-    /// <param name="eventName">ÊÂ¼şÃû</param>
-    /// <param name="sender">´¥·¢Ô´</param>
+    /// <param name="eventName">äº‹ä»¶å</param>
+    /// <param name="sender">è§¦å‘æº</param>
     public void TriggerEvent(EventName eventName, object sender)
     {
         if (handlerDic.ContainsKey(eventName))
@@ -86,11 +86,11 @@ public class EventCenter : BaseManager<EventCenter>
     }
 
     /// <summary>
-    /// ´¥·¢ÊÂ¼ş£¨ÓĞ²ÎÊı£©
+    /// è§¦å‘äº‹ä»¶ï¼ˆæœ‰å‚æ•°ï¼‰
     /// </summary>
-    /// <param name="eventName">ÊÂ¼şÃû</param>
-    /// <param name="sender">´¥·¢Ô´</param>
-    /// <param name="args">ÊÂ¼ş²ÎÊı</param>
+    /// <param name="eventName">äº‹ä»¶å</param>
+    /// <param name="sender">è§¦å‘æº</param>
+    /// <param name="args">äº‹ä»¶å‚æ•°</param>
     public void TriggerEvent(EventName eventName, object sender, EventArgs args)
     {
         if (handlerDic.ContainsKey(eventName))
@@ -100,7 +100,7 @@ public class EventCenter : BaseManager<EventCenter>
     }
 
     /// <summary>
-    /// Çå¿ÕËùÓĞÊÂ¼ş
+    /// æ¸…ç©ºæ‰€æœ‰äº‹ä»¶
     /// </summary>
     public void Clear()
     {
@@ -109,7 +109,7 @@ public class EventCenter : BaseManager<EventCenter>
 }
 
 /*/// <summary>
-/// ½â¾öobject×°Ïä²ğÏäµÄÎÊÌâ
+/// è§£å†³objectè£…ç®±æ‹†ç®±çš„é—®é¢˜
 /// </summary>
 public interface IEventInfo
 {
@@ -137,40 +137,40 @@ public class EventInfo : IEventInfo
 }
 
 /// <summary>
-/// ÊÂ¼şÖĞĞÄÄ£¿é-µ¥ÀıÄ£Ê½¶ÔÏó
+/// äº‹ä»¶ä¸­å¿ƒæ¨¡å—-å•ä¾‹æ¨¡å¼å¯¹è±¡
 /// 1.Dictionary
-/// 2.Î¯ÍĞ
-/// 3.¹Û²ìÕßÉè¼ÆÄ£Ê½
-/// 4.·ºĞÍ
+/// 2.å§”æ‰˜
+/// 3.è§‚å¯Ÿè€…è®¾è®¡æ¨¡å¼
+/// 4.æ³›å‹
 /// </summary>
 public class EventCenter : BaseManager<EventCenter>
 {
-    //key-ÊÂ¼şµÄÃû×Ö£¨±ÈÈç£º¹ÖÎïËÀÍö£¬Íæ¼ÒËÀÍö£¬Í¨¹ØµÈ£©
-    //value-¶ÔÓ¦¼àÌıÕâ¸öÊÂ¼ş¶ÔÓ¦µÄÎ¯ÍĞº¯ÊıÃÇ
+    //key-äº‹ä»¶çš„åå­—ï¼ˆæ¯”å¦‚ï¼šæ€ªç‰©æ­»äº¡ï¼Œç©å®¶æ­»äº¡ï¼Œé€šå…³ç­‰ï¼‰
+    //value-å¯¹åº”ç›‘å¬è¿™ä¸ªäº‹ä»¶å¯¹åº”çš„å§”æ‰˜å‡½æ•°ä»¬
     //private Dictionary<string, UnityAction<object>> eventDic = new Dictionary<string, UnityAction<object>>();
-    //ÓÃobjectµ±ÍòÄÜ²ÎÊı£¬ÓĞ×°Ïä²ğÏä£¬µ«ÓÎÏ·ÖĞ²ÎÊı´«µİ¶à°ëÊÇÒıÓÃÀà£¬¹ÊÏûºÄ±È½ÏÉÙ
-    //Èô¶©ÔÄÕßº¬¶à¸ö²ÎÊı£¬Ôò°Ñ²ÎÊı·â×°³ÉÊı×é»ò½á¹¹»òÀà£¬ÔÙ´«Èë
+    //ç”¨objectå½“ä¸‡èƒ½å‚æ•°ï¼Œæœ‰è£…ç®±æ‹†ç®±ï¼Œä½†æ¸¸æˆä¸­å‚æ•°ä¼ é€’å¤šåŠæ˜¯å¼•ç”¨ç±»ï¼Œæ•…æ¶ˆè€—æ¯”è¾ƒå°‘
+    //è‹¥è®¢é˜…è€…å«å¤šä¸ªå‚æ•°ï¼Œåˆ™æŠŠå‚æ•°å°è£…æˆæ•°ç»„æˆ–ç»“æ„æˆ–ç±»ï¼Œå†ä¼ å…¥
     private Dictionary<string, IEventInfo> eventDic = new Dictionary<string, IEventInfo>();
 
     /// <summary>
-    /// Ìí¼ÓÊÂ¼ş¼àÌı
+    /// æ·»åŠ äº‹ä»¶ç›‘å¬
     /// </summary>
-    /// <param name="eventName">ÊÂ¼şµÄÃû×Ö</param>
-    /// <param name="action">×¼±¸ÓÃÀ´´¦ÀíÊÂ¼şµÄÎ¯ÍĞº¯Êı</param>
+    /// <param name="eventName">äº‹ä»¶çš„åå­—</param>
+    /// <param name="action">å‡†å¤‡ç”¨æ¥å¤„ç†äº‹ä»¶çš„å§”æ‰˜å‡½æ•°</param>
     public void AddEventListener<T>(string eventName, UnityAction<T> action)
     {
-        if (eventDic.ContainsKey(eventName))// ÊÇ·ñ´æÔÚ¸ÃÊÂ¼ş
+        if (eventDic.ContainsKey(eventName))// æ˜¯å¦å­˜åœ¨è¯¥äº‹ä»¶
         {
             (eventDic[eventName] as EventInfo<T>).actions += action;
         }
-        else// ÎŞÔò¼ÓÈëĞÂÊÂ¼ş
+        else// æ— åˆ™åŠ å…¥æ–°äº‹ä»¶
         {
             eventDic.Add(eventName, new EventInfo<T>(action));
         }
     }
 
     /// <summary>
-    /// Ìí¼ÓÊÂ¼ş¼àÌı-ÎŞ²ÎÊı
+    /// æ·»åŠ äº‹ä»¶ç›‘å¬-æ— å‚æ•°
     /// </summary>
     /// <param name="eventName"></param>
     /// <param name="action"></param>
@@ -179,21 +179,21 @@ public class EventCenter : BaseManager<EventCenter>
         if (eventDic.ContainsKey(eventName))
         {
             (eventDic[eventName] as EventInfo).actions += action;
-            Debug.Log("EventCenterÒÑÓĞ²¢³É¹¦Ìí¼ÓÊÂ¼ş£º" + eventName);
+            Debug.Log("EventCenterå·²æœ‰å¹¶æˆåŠŸæ·»åŠ äº‹ä»¶ï¼š" + eventName);
         }
         else
         {
             eventDic.Add(eventName, new EventInfo(action));
-            Debug.Log("EventCenter³É¹¦Ìí¼ÓÊÂ¼ş£º" + eventName);
+            Debug.Log("EventCenteræˆåŠŸæ·»åŠ äº‹ä»¶ï¼š" + eventName);
         }
     }
 
     /// <summary>
-    /// ÒÆ³ı¶ÔÓ¦µÄÊÂ¼ş¼àÌı
-    /// ·ñÔò¿ÉÄÜµ¼ÖÂÄÚ´æĞ¹Â¶
+    /// ç§»é™¤å¯¹åº”çš„äº‹ä»¶ç›‘å¬
+    /// å¦åˆ™å¯èƒ½å¯¼è‡´å†…å­˜æ³„éœ²
     /// </summary>
-    /// <param name="eventName">ÊÂ¼şµÄÃû×Ö</param>
-    /// <param name="action">¶ÔÓ¦Ö®Ç°Ìí¼ÓµÄÎ¯ÍĞº¯Êı</param>
+    /// <param name="eventName">äº‹ä»¶çš„åå­—</param>
+    /// <param name="action">å¯¹åº”ä¹‹å‰æ·»åŠ çš„å§”æ‰˜å‡½æ•°</param>
     public void RemoveEventListener<T>(string eventName, UnityAction<T> action)
     {
         if (eventDic.ContainsKey(eventName))
@@ -203,7 +203,7 @@ public class EventCenter : BaseManager<EventCenter>
     }
 
     /// <summary>
-    /// ÒÆ³ı¶ÔÓ¦µÄÊÂ¼ş¼àÌı-ÎŞ²ÎÊı
+    /// ç§»é™¤å¯¹åº”çš„äº‹ä»¶ç›‘å¬-æ— å‚æ•°
     /// </summary>
     /// <param name="eventName"></param>
     /// <param name="action"></param>
@@ -212,14 +212,14 @@ public class EventCenter : BaseManager<EventCenter>
         if (eventDic.ContainsKey(eventName))
         {
             (eventDic[eventName] as EventInfo).actions -= action;
-            Debug.Log("EventCenterÒÆ³ıÊÂ¼ş£º" + eventName);
+            Debug.Log("EventCenterç§»é™¤äº‹ä»¶ï¼š" + eventName);
         }
     }
 
     /// <summary>
-    /// ÊÂ¼ş´¥·¢
+    /// äº‹ä»¶è§¦å‘
     /// </summary>
-    /// <param name="eventName">ÄÄÒ»¸öÃû×ÖµÄÊÂ¼ş´¥·¢ÁË</param>
+    /// <param name="eventName">å“ªä¸€ä¸ªåå­—çš„äº‹ä»¶è§¦å‘äº†</param>
     /// <param name="obj"></param>
     public void EventTrigger<T>(string eventName, T info)
     {
@@ -227,7 +227,7 @@ public class EventCenter : BaseManager<EventCenter>
         {
             if ((eventDic[eventName] as EventInfo<T>).actions != null)
                 (eventDic[eventName] as EventInfo<T>).actions.Invoke(info);
-            //eventDic[eventName]?.Invoke(obj);//?È·±£»¹ÓĞ¶©ÔÄÕß£¬µÈÍ¬ÓÚÏÂÁĞÓï¾ä
+            //eventDic[eventName]?.Invoke(obj);//?ç¡®ä¿è¿˜æœ‰è®¢é˜…è€…ï¼Œç­‰åŒäºä¸‹åˆ—è¯­å¥
             *//*if (eventDic[eventName] != null)
             {
                 eventDic[eventName](obj);
@@ -236,26 +236,26 @@ public class EventCenter : BaseManager<EventCenter>
     }
 
     /// <summary>
-    /// ÊÂ¼ş´¥·¢-ÎŞ²ÎÊı
+    /// äº‹ä»¶è§¦å‘-æ— å‚æ•°
     /// </summary>
     /// <param name="eventName"></param>
     public void EventTrigger(string eventName)
     {
-        Debug.Log("½øÈëEventTrigger");
+        Debug.Log("è¿›å…¥EventTrigger");
         if (eventDic.ContainsKey(eventName))
         {
-            Debug.Log("EventTrigger½øÈëÊÂ¼ş´¥·¢£º" + eventName);
+            Debug.Log("EventTriggerè¿›å…¥äº‹ä»¶è§¦å‘ï¼š" + eventName);
             if ((eventDic[eventName] as EventInfo).actions != null)
             {
                 (eventDic[eventName] as EventInfo).actions.Invoke();
-                Debug.Log("EventTriggerÊÂ¼ş´¥·¢£º" + eventName);
+                Debug.Log("EventTriggeräº‹ä»¶è§¦å‘ï¼š" + eventName);
             }
         }
     }
 
     /// <summary>
-    /// Çå¿ÕÊÂ¼şÖĞĞÄ
-    /// Ö÷ÒªÓÃÔÚ³¡¾°ÇĞ»»Ê±
+    /// æ¸…ç©ºäº‹ä»¶ä¸­å¿ƒ
+    /// ä¸»è¦ç”¨åœ¨åœºæ™¯åˆ‡æ¢æ—¶
     /// </summary>
     public void Clear()
     {

@@ -4,26 +4,26 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// ÊÂ¼şÃûÀà
+/// äº‹ä»¶åç±»
 /// </summary>
 public enum EventName
 {
-    ShowNotification,//ÏÔÊ¾Í¨Öª
-    StartGuidingDirection,//¿ªÊ¼½øĞĞÂ·¾¶¹æ»®
-    EndGuidingDirection,//±ä¸ü»òÈ¡ÏûÂ·¾¶¹æ»®
-    UpdateGuidingInfo,//¸üĞÂµ¼º½ĞÅÏ¢
-    AlreadyCreatedModel,//´´½¨ĞéÄâµ¼ÓÎ
-    HaveArrivedDestination,//µ½´ïÄ¿µÄµØ
-    ChangeModeTo2DGuiding,//×ª»»»Ø2DÆ½Ãæµ¼º½Ä£Ê½
-    VideoIntroduction,//´ò¿ª½éÉÜÊÓÆµ
-    ChangeModeToARGuidingType//ÇĞ»»×ª»»µ½ARµ¼º½Ä£Ê½Ê±µÄ×´Ì¬
+    ShowNotification,//æ˜¾ç¤ºé€šçŸ¥
+    StartGuidingDirection,//å¼€å§‹è¿›è¡Œè·¯å¾„è§„åˆ’
+    EndGuidingDirection,//å˜æ›´æˆ–å–æ¶ˆè·¯å¾„è§„åˆ’
+    UpdateGuidingInfo,//æ›´æ–°å¯¼èˆªä¿¡æ¯
+    AlreadyCreatedModel,//åˆ›å»ºè™šæ‹Ÿå¯¼æ¸¸
+    HaveArrivedDestination,//åˆ°è¾¾ç›®çš„åœ°
+    ChangeModeTo2DGuiding,//è½¬æ¢å›2Då¹³é¢å¯¼èˆªæ¨¡å¼
+    VideoIntroduction,//æ‰“å¼€ä»‹ç»è§†é¢‘
+    ChangeModeToARGuidingType//åˆ‡æ¢è½¬æ¢åˆ°ARå¯¼èˆªæ¨¡å¼æ—¶çš„çŠ¶æ€
 }
 
 public class ShowNotificationArgs : EventArgs
 {
     public string message;
-    public bool isBtnOn;//ÊÇ·ñÏÔÊ¾°´Å¥
-    public bool autoOff = true;//×Ô¶¯¹Ø±Õ
+    public bool isBtnOn;//æ˜¯å¦æ˜¾ç¤ºæŒ‰é’®
+    public bool autoOff = true;//è‡ªåŠ¨å…³é—­
 }
 
 public class UpdateGuidingInfoArgs : EventArgs
@@ -35,8 +35,8 @@ public class UpdateGuidingInfoArgs : EventArgs
 
 public class HaveArrivedDestinationArgs : EventArgs
 {
-    public int desIndex;//Ä¿µÄµØ´úÊı
-    public string notice;//Ö¸Ê¾ÒÑ¾­µ½´ïµÄÏûÏ¢
+    public int desIndex;//ç›®çš„åœ°ä»£æ•°
+    public string notice;//æŒ‡ç¤ºå·²ç»åˆ°è¾¾çš„æ¶ˆæ¯
 }
 
 public class ChangeModeToARGuidingType : EventArgs

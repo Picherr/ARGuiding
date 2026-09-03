@@ -8,11 +8,11 @@ public class SingletonWithMono<T> : MonoBehaviour where T : MonoBehaviour
 
     public static T GetInstance()
     {
-        //¼Ì³ĞÁËMonoµÄ½Å±¾£¬²»ÄÜÖ±½Ónew£¬Ö»ÄÜÍÏ¶¯µ½¶ÔÏóÉÏ»òÕßÍ¨¹ıAddComponentÌí¼Ó¸Ã½Å±¾
+        //ç»§æ‰¿äº†Monoçš„è„šæœ¬ï¼Œä¸èƒ½ç›´æ¥newï¼Œåªèƒ½æ‹–åŠ¨åˆ°å¯¹è±¡ä¸Šæˆ–è€…é€šè¿‡AddComponentæ·»åŠ è¯¥è„šæœ¬
         return instance;
     }
 
-    protected virtual void Awake()//protected virtual·½±ãºóĞøÖØĞ´¸´ÓÃAwake
+    protected virtual void Awake()//protected virtualæ–¹ä¾¿åç»­é‡å†™å¤ç”¨Awake
     {
         instance = this as T;
     }
@@ -30,7 +30,7 @@ public class SingletonWithMono<T> : MonoBehaviour where T : MonoBehaviour
         }
     }
 
-    public static bool IsInitialized // Ìá¹©Ò»¸öÍâ²¿È·¶¨ÒÑ¾­Éú³ÉinstanceµÄ·½·¨
+    public static bool IsInitialized // æä¾›ä¸€ä¸ªå¤–éƒ¨ç¡®å®šå·²ç»ç”Ÿæˆinstanceçš„æ–¹æ³•
     {
         get { return instance != null; }
     }

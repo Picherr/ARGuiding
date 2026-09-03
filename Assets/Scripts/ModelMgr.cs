@@ -11,13 +11,13 @@ public class ModelMgr : MonoBehaviour
 
     private AnimatorStateInfo info;
 
-    private bool isStart = false;//ÊÇ·ñ¿ªÊ¼½²Êö
+    private bool isStart = false;//æ˜¯å¦å¼€å§‹è®²è¿°
 
     private void Awake()
     {
-        EventCenter.GetInstance().AddEventListener(EventName.ChangeModeTo2DGuiding, changeModeTo2DGuiding);//Ìí¼ÓÊÂ¼ş
+        EventCenter.GetInstance().AddEventListener(EventName.ChangeModeTo2DGuiding, changeModeTo2DGuiding);//æ·»åŠ äº‹ä»¶
 
-        MonoMgr.GetInstance().AddUpdateListener(modelUpdate);//Ìí¼ÓÖ¡¸üĞÂÊÂ¼ş
+        MonoMgr.GetInstance().AddUpdateListener(modelUpdate);//æ·»åŠ å¸§æ›´æ–°äº‹ä»¶
     }
 
     private void Start()
@@ -34,20 +34,20 @@ public class ModelMgr : MonoBehaviour
         }
 
         info = anim.GetCurrentAnimatorStateInfo(0);
-        if (info.IsName("talking") && !isStart)//Èç¹û¿ªÊ¼²¥·Å½²Êö¶¯»­
+        if (info.IsName("talking") && !isStart)//å¦‚æœå¼€å§‹æ’­æ”¾è®²è¿°åŠ¨ç”»
         {
             Introduce();
             isStart = true;
         }
     }
 
-    private void changeModeTo2DGuiding(object sender, EventArgs e)//Èç¹û×ª»»»Ø2Dµ¼º½£¬Ôò½«Ä£ĞÍ¼°ÆäÉÏµÄ¸Ã½Å±¾Ò»²¢Ïú»Ù
+    private void changeModeTo2DGuiding(object sender, EventArgs e)//å¦‚æœè½¬æ¢å›2Då¯¼èˆªï¼Œåˆ™å°†æ¨¡å‹åŠå…¶ä¸Šçš„è¯¥è„šæœ¬ä¸€å¹¶é”€æ¯
     {
         Destroy(gameObject);
     }
 
     /// <summary>
-    /// ½éÉÜ¾°µã
+    /// ä»‹ç»æ™¯ç‚¹
     /// </summary>
     private void Introduce()
     {
@@ -55,18 +55,18 @@ public class ModelMgr : MonoBehaviour
         if (AS == null || audioClip == null || audioIndex < 0 || audioIndex >= audioClip.Count ||
             audioClip[audioIndex] == null)
         {
-            Debug.LogError("µ±Ç°¾°µãÃ»ÓĞ¿ÉÓÃµÄ½²½âÒôÆµ¡£");
+            Debug.LogError("å½“å‰æ™¯ç‚¹æ²¡æœ‰å¯ç”¨çš„è®²è§£éŸ³é¢‘ã€‚");
             return;
         }
 
-        AS.clip = audioClip[audioIndex];//»ñÈ¡µ±Ç°Òª²¥·ÅµÄÒôÆµ
-        AS.Play();//²¥·ÅÒôÆµ
+        AS.clip = audioClip[audioIndex];//è·å–å½“å‰è¦æ’­æ”¾çš„éŸ³é¢‘
+        AS.Play();//æ’­æ”¾éŸ³é¢‘
     }
 
     private void OnDestroy()
     {
-        EventCenter.GetInstance().RemoveEventListener(EventName.ChangeModeTo2DGuiding, changeModeTo2DGuiding);//ÒÆ³ıÊÂ¼ş
+        EventCenter.GetInstance().RemoveEventListener(EventName.ChangeModeTo2DGuiding, changeModeTo2DGuiding);//ç§»é™¤äº‹ä»¶
 
-        MonoMgr.GetInstance().RemoveUpdateListener(modelUpdate);//ÒÆ³ıÖ¡¸üĞÂÊÂ¼ş
+        MonoMgr.GetInstance().RemoveUpdateListener(modelUpdate);//ç§»é™¤å¸§æ›´æ–°äº‹ä»¶
     }
 }

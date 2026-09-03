@@ -10,10 +10,10 @@ using System.Globalization;
 
 public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
 {
-    private string longitude;//unity×ø±ê¾­¶È
-    private string latitude;//unity×ø±êÎ³¶È
-    private string GDlongitude = "113.295082";//¸ßµÂ×ø±ê¾­¶È
-    private string GDlatitude = "23.138099";//¸ßµÂ×ø±êÎ³¶È
+    private string longitude;//unityåæ ‡ç»åº¦
+    private string latitude;//unityåæ ‡çº¬åº¦
+    private string GDlongitude = "113.295082";//é«˜å¾·åæ ‡ç»åº¦
+    private string GDlatitude = "23.138099";//é«˜å¾·åæ ‡çº¬åº¦
 
     private Text searchinfo;
     private InputField search;
@@ -27,9 +27,9 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
     [SerializeField]
     private LineRenderer lineRendererInWorld;
 
-    private bool isGuiding = false;//ÊÇ·ñÕıÔÚµ¼º½
-    private bool isARGuiding = false;//ÊÇ·ñÕıÔÚARµ¼º½
-    private bool isLocating = false;//ÊÇ·ñ´Ë´Î²Ù×÷Îª¶¨Î»
+    private bool isGuiding = false;//æ˜¯å¦æ­£åœ¨å¯¼èˆª
+    private bool isARGuiding = false;//æ˜¯å¦æ­£åœ¨ARå¯¼èˆª
+    private bool isLocating = false;//æ˜¯å¦æ­¤æ¬¡æ“ä½œä¸ºå®šä½
     private bool isLocatingInProgress;
     private bool isDirectionRequestInProgress;
     private bool hasValidLocation;
@@ -46,18 +46,18 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
 
     private void Awake()
     {
-        EventCenter.GetInstance().AddEventListener(EventName.StartGuidingDirection, StartGuidingDirection);//Ìí¼ÓÊÂ¼ş
-        EventCenter.GetInstance().AddEventListener(EventName.EndGuidingDirection, EndGuidingDirection);//Ìí¼ÓÊÂ¼ş
+        EventCenter.GetInstance().AddEventListener(EventName.StartGuidingDirection, StartGuidingDirection);//æ·»åŠ äº‹ä»¶
+        EventCenter.GetInstance().AddEventListener(EventName.EndGuidingDirection, EndGuidingDirection);//æ·»åŠ äº‹ä»¶
     }
 
     private void Start()
     {
-        //³¡¾°ÖĞ´´½¨LineRendererInMap
+        //åœºæ™¯ä¸­åˆ›å»ºLineRendererInMap
         ResMgr.GetInstance().LoadAsync<GameObject>("Prefabs/RouteInMap", (obj) =>
         {
             lineRendererInMap = obj.GetComponent<LineRenderer>();
         });
-        //³¡¾°ÖĞ´´½¨LineRendererInWorld
+        //åœºæ™¯ä¸­åˆ›å»ºLineRendererInWorld
         /*ResMgr.GetInstance().LoadAsync<GameObject>("Prefabs/RouteInWorld", (obj) =>
         {
             lineRendererInWorld = obj.GetComponent<LineRenderer>();
@@ -68,7 +68,7 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
     {
         if (!IsDestinationValid())
         {
-            ShowMessage("ÇëÏÈÑ¡ÔñÄ¿µÄµØ¡£");
+            ShowMessage("è¯·å…ˆé€‰æ‹©ç›®çš„åœ°ã€‚");
             return;
         }
 
@@ -83,7 +83,7 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
     }
 
     /// <summary>
-    /// ¶¨Î»
+    /// å®šä½
     /// </summary>
     public void OnLocating()
     {
@@ -94,10 +94,10 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
     }
 
     /// <summary>
-    /// ¸øÍâ²¿Ìá¹©µÄÂ·¾¶¹æ»®º¯Êı
-    /// 1.»ñÈ¡µ±Ç°Î»ÖÃ×ø±ê-ÀûÓÃGPSºÍ×ø±ê×ª»»º¯Êı
-    /// 2.»ñÈ¡¹æ»®ĞÅÏ¢-ÀûÓÃÂ·¾¶¹æ»®º¯Êı
-    /// 3.¸üĞÂGuidePanel
+    /// ç»™å¤–éƒ¨æä¾›çš„è·¯å¾„è§„åˆ’å‡½æ•°
+    /// 1.è·å–å½“å‰ä½ç½®åæ ‡-åˆ©ç”¨GPSå’Œåæ ‡è½¬æ¢å‡½æ•°
+    /// 2.è·å–è§„åˆ’ä¿¡æ¯-åˆ©ç”¨è·¯å¾„è§„åˆ’å‡½æ•°
+    /// 3.æ›´æ–°GuidePanel
     /// </summary>
     public void OnDirection()
     {
@@ -160,7 +160,7 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
     }
 
     /// <summary>
-    /// ËÑË÷°´Å¥
+    /// æœç´¢æŒ‰é’®
     /// </summary>
     private void OnSearching()
     {
@@ -179,7 +179,7 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
     }
 
     /// <summary>
-    /// ÊÖ»úÇëÇó»ñÈ¡GPS¶¨Î»È¨ÏŞ
+    /// æ‰‹æœºè¯·æ±‚è·å–GPSå®šä½æƒé™
     /// </summary>
     /// <returns></returns>
     private IEnumerator Locate()
@@ -194,7 +194,7 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
         isLocatingInProgress = false;
         if (isLocating)
         {
-            ShowMessage("±à¼­Æ÷Ä£Ê½Ê¹ÓÃ»Æ»¨¸Ú¹«Ô°²âÊÔ×ø±ê¡£");
+            ShowMessage("ç¼–è¾‘å™¨æ¨¡å¼ä½¿ç”¨é»„èŠ±å²—å…¬å›­æµ‹è¯•åæ ‡ã€‚");
             isLocating = false;
         }
         yield break;
@@ -215,7 +215,7 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
             {
                 hasValidLocation = false;
                 isLocatingInProgress = false;
-                ShowMessage("Î´»ñµÃ¶¨Î»È¨ÏŞ£¬ÎŞ·¨½øĞĞµ¼º½¡£");
+                ShowMessage("æœªè·å¾—å®šä½æƒé™ï¼Œæ— æ³•è¿›è¡Œå¯¼èˆªã€‚");
                 yield break;
             }
         }
@@ -231,23 +231,23 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
 
     private IEnumerator GPS()
     {
-        Debug.Log("¿ªÊ¼»ñÈ¡GPSĞÅÏ¢");
+        Debug.Log("å¼€å§‹è·å–GPSä¿¡æ¯");
         hasValidLocation = false;
 
-        // ¼ì²éÎ»ÖÃ·şÎñÊÇ·ñ¿ÉÓÃ
+        // æ£€æŸ¥ä½ç½®æœåŠ¡æ˜¯å¦å¯ç”¨
         if (!Input.location.isEnabledByUser)
         {
-            ShowMessage("Î»ÖÃ·şÎñ²»¿ÉÓÃ£¬Çë¿ªÆôÏµÍ³¶¨Î»·şÎñ¡£");
+            ShowMessage("ä½ç½®æœåŠ¡ä¸å¯ç”¨ï¼Œè¯·å¼€å¯ç³»ç»Ÿå®šä½æœåŠ¡ã€‚");
             yield break;
         }
 
-        // ²éÑ¯Î»ÖÃÇ°ÏÈ¿ªÆôÎ»ÖÃ·şÎñ
-        //gps.text = "Æô¶¯Î»ÖÃ·şÎñ";
+        // æŸ¥è¯¢ä½ç½®å‰å…ˆå¼€å¯ä½ç½®æœåŠ¡
+        //gps.text = "å¯åŠ¨ä½ç½®æœåŠ¡";
 
         Input.location.Start();
-        Debug.Log("Æô¶¯Î»ÖÃ·şÎñ");
+        Debug.Log("å¯åŠ¨ä½ç½®æœåŠ¡");
 
-        // µÈ´ı·şÎñ³õÊ¼»¯
+        // ç­‰å¾…æœåŠ¡åˆå§‹åŒ–
         int maxWait = 20;
         while (Input.location.status == LocationServiceStatus.Initializing && maxWait > 0)
         {
@@ -256,35 +256,35 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
             maxWait--;
         }
 
-        // ·şÎñ³õÊ¼»¯³¬Ê±
+        // æœåŠ¡åˆå§‹åŒ–è¶…æ—¶
         if (maxWait < 1)
         {
-            Debug.Log("·şÎñ³õÊ¼»¯³¬Ê±");
+            Debug.Log("æœåŠ¡åˆå§‹åŒ–è¶…æ—¶");
             Input.location.Stop();
-            ShowMessage("¶¨Î»³õÊ¼»¯³¬Ê±£¬ÇëÉÔºóÖØÊÔ¡£");
+            ShowMessage("å®šä½åˆå§‹åŒ–è¶…æ—¶ï¼Œè¯·ç¨åé‡è¯•ã€‚");
             yield break;
         }
 
-        // Á¬½ÓÊ§°Ü
+        // è¿æ¥å¤±è´¥
         if (Input.location.status == LocationServiceStatus.Failed)
         {
-            Debug.Log("ÎŞ·¨È·¶¨Éè±¸Î»ÖÃ");
+            Debug.Log("æ— æ³•ç¡®å®šè®¾å¤‡ä½ç½®");
             Input.location.Stop();
-            ShowMessage("ÎŞ·¨È·¶¨Éè±¸Î»ÖÃ¡£");
+            ShowMessage("æ— æ³•ç¡®å®šè®¾å¤‡ä½ç½®ã€‚");
             yield break;
         }
         else
         {
             /*gps.text = "Location:rn" + "\n" +
-                "Î³¶È£º" + Input.location.lastData.latitude + "\n" +
-                "¾­¶È£º" + Input.location.lastData.longitude + "\n" +
-                "º£°Î£º" + Input.location.lastData.altitude + "\n" +
-                "Ë®Æ½¾«¶È£º" + Input.location.lastData.horizontalAccuracy + "\n" +
-                "´¹Ö±¾«¶È£º" + Input.location.lastData.verticalAccuracy + "\n" +
-                "Ê±¼ä´Á£º" + Input.location.lastData.timestamp;*/
+                "çº¬åº¦ï¼š" + Input.location.lastData.latitude + "\n" +
+                "ç»åº¦ï¼š" + Input.location.lastData.longitude + "\n" +
+                "æµ·æ‹”ï¼š" + Input.location.lastData.altitude + "\n" +
+                "æ°´å¹³ç²¾åº¦ï¼š" + Input.location.lastData.horizontalAccuracy + "\n" +
+                "å‚ç›´ç²¾åº¦ï¼š" + Input.location.lastData.verticalAccuracy + "\n" +
+                "æ—¶é—´æˆ³ï¼š" + Input.location.lastData.timestamp;*/
 
-            longitude = Input.location.lastData.longitude.ToString("0.000000", CultureInfo.InvariantCulture);//GPS¾­¶È
-            latitude = Input.location.lastData.latitude.ToString("0.000000", CultureInfo.InvariantCulture);//GPSÎ³¶È
+            longitude = Input.location.lastData.longitude.ToString("0.000000", CultureInfo.InvariantCulture);//GPSç»åº¦
+            latitude = Input.location.lastData.latitude.ToString("0.000000", CultureInfo.InvariantCulture);//GPSçº¬åº¦
 
             string key;
             string keyError;
@@ -299,12 +299,12 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
                 "https://restapi.amap.com/v3/assistant/coordinate/convert?locations=" + longitude + "," + latitude +
                 "&coordsys=gps&output=json&key=" + UnityWebRequest.EscapeURL(key));
         }
-        // Í£Ö¹·şÎñ£¬Èç¹ûÃ»±ØÒª¼ÌĞø¸üĞÂÎ»ÖÃ
+        // åœæ­¢æœåŠ¡ï¼Œå¦‚æœæ²¡å¿…è¦ç»§ç»­æ›´æ–°ä½ç½®
         Input.location.Stop();
     }
 
     /// <summary>
-    /// ×ø±ê×ª»»£º½«·Ç¸ßµÂ×ø±ê×ª»»Îª¸ßµÂ×ø±ê
+    /// åæ ‡è½¬æ¢ï¼šå°†éé«˜å¾·åæ ‡è½¬æ¢ä¸ºé«˜å¾·åæ ‡
     /// </summary>
     /// <param name="url"></param>
     /// <returns></returns>
@@ -317,7 +317,7 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
 
             if (webRequest.result != UnityWebRequest.Result.Success)
             {
-                ShowRequestError("×ø±ê×ª»»", webRequest);
+                ShowRequestError("åæ ‡è½¬æ¢", webRequest);
                 yield break;
             }
 
@@ -327,14 +327,14 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
             }
             catch (Exception exception)
             {
-                Debug.LogError("½âÎö¸ßµÂ×ø±ê×ª»»½á¹ûÊ§°Ü£º" + exception);
-                ShowMessage("ÎŞ·¨½âÎö¶¨Î»½á¹û£¬ÇëÉÔºóÖØÊÔ¡£");
+                Debug.LogError("è§£æé«˜å¾·åæ ‡è½¬æ¢ç»“æœå¤±è´¥ï¼š" + exception);
+                ShowMessage("æ— æ³•è§£æå®šä½ç»“æœï¼Œè¯·ç¨åé‡è¯•ã€‚");
             }
         }
     }
 
     /// <summary>
-    /// ÄæµØÀí±àÂë
+    /// é€†åœ°ç†ç¼–ç 
     /// </summary>
     /// <param name="url"></param>
     /// <returns></returns>
@@ -363,7 +363,7 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
     }
 
     /// <summary>
-    /// Â·¾¶¹æ»®
+    /// è·¯å¾„è§„åˆ’
     /// </summary>
     /// <param name="url"></param>
     /// <returns></returns>
@@ -381,7 +381,7 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
 
             if (webRequest.result != UnityWebRequest.Result.Success)
             {
-                ShowRequestError("²½ĞĞÂ·Ïß¹æ»®", webRequest);
+                ShowRequestError("æ­¥è¡Œè·¯çº¿è§„åˆ’", webRequest);
                 yield break;
             }
 
@@ -391,14 +391,14 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
             }
             catch (Exception exception)
             {
-                Debug.LogError("½âÎö¸ßµÂ²½ĞĞÂ·ÏßÊ§°Ü£º" + exception);
-                ShowMessage("ÎŞ·¨½âÎö²½ĞĞÂ·Ïß£¬ÇëÉÔºóÖØÊÔ¡£");
+                Debug.LogError("è§£æé«˜å¾·æ­¥è¡Œè·¯çº¿å¤±è´¥ï¼š" + exception);
+                ShowMessage("æ— æ³•è§£ææ­¥è¡Œè·¯çº¿ï¼Œè¯·ç¨åé‡è¯•ã€‚");
             }
         }
     }
 
     /// <summary>
-    /// ÊäÈëÌáÊ¾
+    /// è¾“å…¥æç¤º
     /// </summary>
     /// <param name="url"></param>
     /// <returns></returns>
@@ -440,14 +440,14 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
     }
 
     /// <summary>
-    /// ÔÚUnityÊÀ½çÖĞ»æÖÆµ¼º½Ïß
+    /// åœ¨Unityä¸–ç•Œä¸­ç»˜åˆ¶å¯¼èˆªçº¿
     /// </summary>
     /// <param name="waypoints"></param>
     public void DrawRouteInMap(List<Vector3> waypoints)
     {
         if (lineRendererInMap == null)
         {
-            Debug.LogWarning("¶şÎ¬Â·Ïß¶ÔÏóÉĞÎ´¼ÓÔØÍê³É¡£");
+            Debug.LogWarning("äºŒç»´è·¯çº¿å¯¹è±¡å°šæœªåŠ è½½å®Œæˆã€‚");
             return;
         }
 
@@ -460,14 +460,14 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
     }
 
     /// <summary>
-    /// ÔÚÕæÊµÊÀ½çÖĞ»æÖÆµ¼º½Ïß
+    /// åœ¨çœŸå®ä¸–ç•Œä¸­ç»˜åˆ¶å¯¼èˆªçº¿
     /// </summary>
     /// <param name="waypoints"></param>
     public void DrawRouteInWorld(Vector3 pnt)
     {
         if (lineRendererInWorld == null)
         {
-            Debug.LogWarning("AR Â·Ïß¶ÔÏóÉĞÎ´¼ÓÔØÍê³É¡£");
+            Debug.LogWarning("AR è·¯çº¿å¯¹è±¡å°šæœªåŠ è½½å®Œæˆã€‚");
             return;
         }
 
@@ -478,7 +478,7 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
             !double.TryParse(GDlatitude, NumberStyles.Float, CultureInfo.InvariantCulture,
                 out currentLatitude))
         {
-            Debug.LogWarning("µ±Ç°Î»ÖÃÎŞ·¨ÓÃÓÚ¼ÆËã AR µ¼º½·½Ïò¡£");
+            Debug.LogWarning("å½“å‰ä½ç½®æ— æ³•ç”¨äºè®¡ç®— AR å¯¼èˆªæ–¹å‘ã€‚");
             return;
         }
 
@@ -506,8 +506,8 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
 
     private void ShowRequestError(string operation, UnityWebRequest request)
     {
-        Debug.LogError(operation + "Ê§°Ü£º" + request.responseCode + " " + request.error);
-        ShowMessage(operation + "Ê§°Ü£¬Çë¼ì²éÍøÂçºóÖØÊÔ¡£");
+        Debug.LogError(operation + "å¤±è´¥ï¼š" + request.responseCode + " " + request.error);
+        ShowMessage(operation + "å¤±è´¥ï¼Œè¯·æ£€æŸ¥ç½‘ç»œåé‡è¯•ã€‚");
     }
 
     private static string GetApiError(JsonData response)
@@ -520,7 +520,7 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
         try
         {
             string info = response["info"].ToString();
-            return string.IsNullOrEmpty(info) ? string.Empty : "£¨" + info + "£©";
+            return string.IsNullOrEmpty(info) ? string.Empty : "ï¼ˆ" + info + "ï¼‰";
         }
         catch
         {
@@ -535,7 +535,7 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
             jd["route"]["paths"] == null || jd["route"]["paths"].Count == 0 ||
             jd["route"]["paths"][0]["steps"] == null || jd["route"]["paths"][0]["steps"].Count == 0)
         {
-            ShowMessage("Î´»ñÈ¡µ½¿ÉÓÃµÄ²½ĞĞÂ·Ïß¡£" + GetApiError(jd));
+            ShowMessage("æœªè·å–åˆ°å¯ç”¨çš„æ­¥è¡Œè·¯çº¿ã€‚" + GetApiError(jd));
             return;
         }
 
@@ -545,7 +545,7 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
         {
             this.TriggerEvent(EventName.ShowNotification, new ShowNotificationArgs
             {
-                message = "ÒÑµ½´ï\n" + Info.DesInfo(InfoPanel.desIndex),
+                message = "å·²åˆ°è¾¾\n" + Info.DesInfo(InfoPanel.desIndex),
                 isBtnOn = true,
                 autoOff = false
             });
@@ -611,14 +611,14 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
         JsonData jd = JsonMapper.ToObject(responseText);
         if (jd["status"].ToString() != "1" || jd["locations"] == null)
         {
-            ShowMessage("¸ßµÂ×ø±ê×ª»»Ê§°Ü¡£" + GetApiError(jd));
+            ShowMessage("é«˜å¾·åæ ‡è½¬æ¢å¤±è´¥ã€‚" + GetApiError(jd));
             return;
         }
 
         string[] convertedLocation = jd["locations"].ToString().Split(',');
         if (convertedLocation.Length != 2)
         {
-            ShowMessage("¸ßµÂ×ø±ê×ª»»·µ»ØÁËÎŞĞ§×ø±ê¡£");
+            ShowMessage("é«˜å¾·åæ ‡è½¬æ¢è¿”å›äº†æ— æ•ˆåæ ‡ã€‚");
             return;
         }
 
@@ -629,7 +629,7 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
             !double.TryParse(convertedLocation[1], NumberStyles.Float, CultureInfo.InvariantCulture,
                 out convertedLatitude))
         {
-            ShowMessage("¸ßµÂ×ø±ê×ª»»·µ»ØÁËÎŞ·¨½âÎöµÄ×ø±ê¡£");
+            ShowMessage("é«˜å¾·åæ ‡è½¬æ¢è¿”å›äº†æ— æ³•è§£æçš„åæ ‡ã€‚");
             return;
         }
 
@@ -640,8 +640,8 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
 
         if (isLocating)
         {
-            ShowMessage("ÒÑ¶¨Î»£¡\nGPS¾­¶È£º" + longitude + "\nGPSÎ³¶È£º" + latitude +
-                        "\n¸ßµÂ¾­¶È£º" + GDlongitude + "\n¸ßµÂÎ³¶È£º" + GDlatitude);
+            ShowMessage("å·²å®šä½ï¼\nGPSç»åº¦ï¼š" + longitude + "\nGPSçº¬åº¦ï¼š" + latitude +
+                        "\né«˜å¾·ç»åº¦ï¼š" + GDlongitude + "\né«˜å¾·çº¬åº¦ï¼š" + GDlatitude);
             isLocating = false;
         }
     }
@@ -650,7 +650,7 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
     {
         CancelInvoke("OnDirection");
         StopAllCoroutines();
-        EventCenter.GetInstance().RemoveEventListener(EventName.StartGuidingDirection, StartGuidingDirection);//ÒÆ³ıÊÂ¼ş
-        EventCenter.GetInstance().RemoveEventListener(EventName.EndGuidingDirection, EndGuidingDirection);//ÒÆ³ıÊÂ¼ş
+        EventCenter.GetInstance().RemoveEventListener(EventName.StartGuidingDirection, StartGuidingDirection);//ç§»é™¤äº‹ä»¶
+        EventCenter.GetInstance().RemoveEventListener(EventName.EndGuidingDirection, EndGuidingDirection);//ç§»é™¤äº‹ä»¶
     }
 }

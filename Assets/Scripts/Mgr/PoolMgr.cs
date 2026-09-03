@@ -3,18 +3,18 @@ using UnityEngine;
 using UnityEngine.Events;
 
 /// <summary>
-/// ³éÌëÊı¾İ-»º´æ³ØÖĞµÄÒ»ÖÖÈİÆ÷£¬ÓÃÓÚ´æ·Å¶ÔÏó
+/// æŠ½å±‰æ•°æ®-ç¼“å­˜æ± ä¸­çš„ä¸€ç§å®¹å™¨ï¼Œç”¨äºå­˜æ”¾å¯¹è±¡
 /// </summary>
 public class PoolData
 {
-    //³éÌëÖĞ¶ÔÏó¹ÒÔØµÄ¸¸½áµã
+    //æŠ½å±‰ä¸­å¯¹è±¡æŒ‚è½½çš„çˆ¶ç»“ç‚¹
     public GameObject fatherObj;
-    //¶ÔÏóµÄÈİÆ÷
+    //å¯¹è±¡çš„å®¹å™¨
     public List<GameObject> poolList;
 
     public PoolData(GameObject obj,GameObject poolObj)
     {
-        //¸ø³éÌë´´½¨Ò»¸ö¸¸¶ÔÏó²¢°ÑËü×÷ÎªÎÒÃÇPool¶ÔÏó£¨ÒÂ¹ñ£©µÄ×ÓÎïÌå
+        //ç»™æŠ½å±‰åˆ›å»ºä¸€ä¸ªçˆ¶å¯¹è±¡å¹¶æŠŠå®ƒä½œä¸ºæˆ‘ä»¬Poolå¯¹è±¡ï¼ˆè¡£æŸœï¼‰çš„å­ç‰©ä½“
         fatherObj = new GameObject(obj.name);
         fatherObj.transform.parent = poolObj.transform;
 
@@ -24,23 +24,23 @@ public class PoolData
 
     public void PushObj(GameObject obj)
     {
-        //Ê§»î£¬ÈÃ¶ÔÏóÒş²Ø
+        //å¤±æ´»ï¼Œè®©å¯¹è±¡éšè—
         obj.SetActive(false);
-        //´æÆğÀ´
+        //å­˜èµ·æ¥
         poolList.Add(obj);
-        //ÉèÖÃ¸¸¶ÔÏó
+        //è®¾ç½®çˆ¶å¯¹è±¡
         obj.transform.parent = fatherObj.transform;
     }
 
     public GameObject GetObj()
     {
         GameObject obj = null;
-        //È¡³öµÚÒ»¸ö
+        //å–å‡ºç¬¬ä¸€ä¸ª
         obj = poolList[0];
         poolList.RemoveAt(0);
-        //¼¤»î
+        //æ¿€æ´»
         obj.SetActive(true);
-        //¶Ï¿ª¸¸×Ó¹ØÏµ
+        //æ–­å¼€çˆ¶å­å…³ç³»
         obj.transform.parent = null;
 
         return obj;
@@ -48,15 +48,15 @@ public class PoolData
 }
 
 /// <summary>
-/// »º´æ³ØÄ£¿é
+/// ç¼“å­˜æ± æ¨¡å—
 /// 1.Dictionary List
-/// 2.GameObject ºÍ Resources Á½¸ö¹«¹²ÀàÖĞµÄAPI
+/// 2.GameObject å’Œ Resources ä¸¤ä¸ªå…¬å…±ç±»ä¸­çš„API
 /// </summary>
-public class PoolMgr : BaseManager<PoolMgr>//¼Ì³Ğµ¥ÀıÄ£Ê½¸¸Àà
+public class PoolMgr : BaseManager<PoolMgr>//ç»§æ‰¿å•ä¾‹æ¨¡å¼çˆ¶ç±»
 {
-    //»º´æ³ØÈİÆ÷£¨ÒÂ¹ñ£©
+    //ç¼“å­˜æ± å®¹å™¨ï¼ˆè¡£æŸœï¼‰
     public Dictionary<string, PoolData> poolDic = new Dictionary<string, PoolData>();
-    //Ô¤ÖÆÌå¸ù½Úµã
+    //é¢„åˆ¶ä½“æ ¹èŠ‚ç‚¹
     public GameObject poolObj;
 
     public void Start()
@@ -66,14 +66,14 @@ public class PoolMgr : BaseManager<PoolMgr>//¼Ì³Ğµ¥ÀıÄ£Ê½¸¸Àà
 
     /*public GameObject GetObj(string keyName)
     {
-        if (poolDic.ContainsKey(keyName) && poolDic[keyName].poolList.Count > 0)//ÅĞ¶ÏÒÑ¾­´æÔÚÕâÖÖ³éÌëÇÒ³éÌëÄÚº¬ÓĞkeyNameÀà±ğµÄÎïÌå
+        if (poolDic.ContainsKey(keyName) && poolDic[keyName].poolList.Count > 0)//åˆ¤æ–­å·²ç»å­˜åœ¨è¿™ç§æŠ½å±‰ä¸”æŠ½å±‰å†…å«æœ‰keyNameç±»åˆ«çš„ç‰©ä½“
         {
-            obj = poolDic[keyName].GetObj();//¸³ÖµÈ¡³ö
+            obj = poolDic[keyName].GetObj();//èµ‹å€¼å–å‡º
         }
-        else//ÎŞÕâÖÖ³éÌë»òÕßÒÑ¾­Ã»ÓĞÕâÖÖÎïÌåµÄ»°£¬ÊµÀı»¯Ò»¸ö³öÀ´£¨µÚÒ»´ÎÊµÀı»¯Ê±²»±ØÏÈ´´½¨³éÌë£¬³éÌëÔÚPushÊ±ÔÙ´´½¨£©
+        else//æ— è¿™ç§æŠ½å±‰æˆ–è€…å·²ç»æ²¡æœ‰è¿™ç§ç‰©ä½“çš„è¯ï¼Œå®ä¾‹åŒ–ä¸€ä¸ªå‡ºæ¥ï¼ˆç¬¬ä¸€æ¬¡å®ä¾‹åŒ–æ—¶ä¸å¿…å…ˆåˆ›å»ºæŠ½å±‰ï¼ŒæŠ½å±‰åœ¨Pushæ—¶å†åˆ›å»ºï¼‰
         {
-            obj = GameObject.Instantiate(Resources.Load<GameObject>("Prefabs/" + keyName));//Resources.Load¿ÉÒÔ½áºÏºóÃæµÄ×ÊÔ´¹ÜÀíÆ÷¸üÕıÊ¹ÓÃ
-            //Instantiate¿ËÂ¡³öÈ¥µÄÃû×Ö¶¼´øÓĞ£¨clone£©ºó×º£¬¹ÊĞèÒª°ÑobjµÄÃû×Ö¸Ä³ÉºÍ³éÌë£¨¼´Ô­ÎïÌåµÄÃû×Ö£©Ò»ÖÂ
+            obj = GameObject.Instantiate(Resources.Load<GameObject>("Prefabs/" + keyName));//Resources.Loadå¯ä»¥ç»“åˆåé¢çš„èµ„æºç®¡ç†å™¨æ›´æ­£ä½¿ç”¨
+            //Instantiateå…‹éš†å‡ºå»çš„åå­—éƒ½å¸¦æœ‰ï¼ˆcloneï¼‰åç¼€ï¼Œæ•…éœ€è¦æŠŠobjçš„åå­—æ”¹æˆå’ŒæŠ½å±‰ï¼ˆå³åŸç‰©ä½“çš„åå­—ï¼‰ä¸€è‡´
             obj.name = keyName;
         }
 
@@ -82,13 +82,13 @@ public class PoolMgr : BaseManager<PoolMgr>//¼Ì³Ğµ¥ÀıÄ£Ê½¸¸Àà
 
     public void GetObj(string keyName,UnityAction<GameObject> callback)
     {
-        if (poolDic.ContainsKey(keyName) && poolDic[keyName].poolList.Count > 0)//ÅĞ¶ÏÒÑ¾­´æÔÚÕâÖÖ³éÌëÇÒ³éÌëÄÚº¬ÓĞkeyNameÀà±ğµÄÎïÌå
+        if (poolDic.ContainsKey(keyName) && poolDic[keyName].poolList.Count > 0)//åˆ¤æ–­å·²ç»å­˜åœ¨è¿™ç§æŠ½å±‰ä¸”æŠ½å±‰å†…å«æœ‰keyNameç±»åˆ«çš„ç‰©ä½“
         {
             callback(poolDic[keyName].GetObj());
         }
-        else//ÎŞÕâÖÖ³éÌë»òÕßÒÑ¾­Ã»ÓĞÕâÖÖÎïÌåµÄ»°£¬ÊµÀı»¯Ò»¸ö³öÀ´£¨µÚÒ»´ÎÊµÀı»¯Ê±²»±ØÏÈ´´½¨³éÌë£¬³éÌëÔÚPushÊ±ÔÙ´´½¨£©
+        else//æ— è¿™ç§æŠ½å±‰æˆ–è€…å·²ç»æ²¡æœ‰è¿™ç§ç‰©ä½“çš„è¯ï¼Œå®ä¾‹åŒ–ä¸€ä¸ªå‡ºæ¥ï¼ˆç¬¬ä¸€æ¬¡å®ä¾‹åŒ–æ—¶ä¸å¿…å…ˆåˆ›å»ºæŠ½å±‰ï¼ŒæŠ½å±‰åœ¨Pushæ—¶å†åˆ›å»ºï¼‰
         {
-            //Í¨¹ıÒì²½¼ÓÔØ×ÊÔ´´´½¨¶ÔÏó¸øÍâ²¿ÓÃ
+            //é€šè¿‡å¼‚æ­¥åŠ è½½èµ„æºåˆ›å»ºå¯¹è±¡ç»™å¤–éƒ¨ç”¨
             ResMgr.GetInstance().LoadAsync<GameObject>(keyName, (o) =>
             {
                 o.name = keyName;
@@ -97,26 +97,26 @@ public class PoolMgr : BaseManager<PoolMgr>//¼Ì³Ğµ¥ÀıÄ£Ê½¸¸Àà
         }
     }
 
-    public void PushObj(string keyName,GameObject obj)//ÍâÃæÎïÌåµÄ·½·¨»áÔÚ¼¤»îÒ»¶ÎÊ±¼äºó×Ô¶¯invoke PushObjÕâ¸ö·½·¨
+    public void PushObj(string keyName,GameObject obj)//å¤–é¢ç‰©ä½“çš„æ–¹æ³•ä¼šåœ¨æ¿€æ´»ä¸€æ®µæ—¶é—´åè‡ªåŠ¨invoke PushObjè¿™ä¸ªæ–¹æ³•
     {
-        if (poolObj == null)//ÈôÊÕÈİµÄpool²»´æÔÚ£¬ĞÂ½¨Ò»¸ö
+        if (poolObj == null)//è‹¥æ”¶å®¹çš„poolä¸å­˜åœ¨ï¼Œæ–°å»ºä¸€ä¸ª
         {
             poolObj = new GameObject("Pool");
         }
         
-        if (poolDic.ContainsKey(keyName))//Èç¹ûÓĞ³éÌëÔò½«¸ÃÎïÌåÑ¹ÈëlistÖĞ
+        if (poolDic.ContainsKey(keyName))//å¦‚æœæœ‰æŠ½å±‰åˆ™å°†è¯¥ç‰©ä½“å‹å…¥listä¸­
         {
             poolDic[keyName].PushObj(obj);
         }
-        else//Èç¹ûÃ»ÓĞ³éÌë
+        else//å¦‚æœæ²¡æœ‰æŠ½å±‰
         {
-            poolDic.Add(keyName, new PoolData(obj, poolObj));//´´½¨³éÌë£¬ÇÒ°ÑÕâ¸öÎïÌå·Å½øÈ¥
+            poolDic.Add(keyName, new PoolData(obj, poolObj));//åˆ›å»ºæŠ½å±‰ï¼Œä¸”æŠŠè¿™ä¸ªç‰©ä½“æ”¾è¿›å»
         }
     }
 
     /// <summary>
-    /// Çå¿Õ»º´æ³ØµÄ·½·¨
-    /// Ö÷ÒªÓÃÔÚÇĞ»»³¡¾°Ê±
+    /// æ¸…ç©ºç¼“å­˜æ± çš„æ–¹æ³•
+    /// ä¸»è¦ç”¨åœ¨åˆ‡æ¢åœºæ™¯æ—¶
     /// </summary>
     /// <param name="obj"></param>
     public void Clear(object obj)

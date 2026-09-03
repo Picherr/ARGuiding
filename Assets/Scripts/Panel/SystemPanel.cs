@@ -7,64 +7,64 @@ using TMPro;
 using UnityEngine.Video;
 using System.Collections.Generic;
 
-//×ª»»µ½ARÄ£Ê½Ê±µÄ×´Ì¬
+//è½¬æ¢åˆ°ARæ¨¡å¼æ—¶çš„çŠ¶æ€
 public enum ModeToAR_Type
 {
-    Nothing,//Î´Ñ¡ÔñÄ¿µÄµØ£¬¼´Î´¿ªÊ¼µ¼º½
-    StartGuiding,//ÒÑ¾­¿ªÊ¼µ¼º½
-    Arrived,//µ½´ïÄ¿µÄµØ
+    Nothing,//æœªé€‰æ‹©ç›®çš„åœ°ï¼Œå³æœªå¼€å§‹å¯¼èˆª
+    StartGuiding,//å·²ç»å¼€å§‹å¯¼èˆª
+    Arrived,//åˆ°è¾¾ç›®çš„åœ°
 }
 
 public class SystemPanel : BasePanel
 {
     [SerializeField]
-    private GameObject Message;//ĞÅÏ¢¿ò¸ùÎïÌå
+    private GameObject Message;//ä¿¡æ¯æ¡†æ ¹ç‰©ä½“
     [SerializeField]
-    private GameObject Video;//ÊÓÆµ¸ùÎïÌå
+    private GameObject Video;//è§†é¢‘æ ¹ç‰©ä½“
 
     [SerializeField]
-    private TextMeshProUGUI message;//ÌáÊ¾ĞÅÏ¢
+    private TextMeshProUGUI message;//æç¤ºä¿¡æ¯
 
     [SerializeField]
-    private GameObject btnConfirm;//ÌáÊ¾ĞÅÏ¢¿òÈ·ÈÏ°´Å¥
+    private GameObject btnConfirm;//æç¤ºä¿¡æ¯æ¡†ç¡®è®¤æŒ‰é’®
     [SerializeField]
-    private GameObject btnShowPause;//RawImage³äµ±ÔİÍ£°´Å¥»½ĞÑ
+    private GameObject btnShowPause;//RawImageå……å½“æš‚åœæŒ‰é’®å”¤é†’
     [SerializeField]
-    private GameObject btnStop;//Í£Ö¹µ¼º½°´Å¥
+    private GameObject btnStop;//åœæ­¢å¯¼èˆªæŒ‰é’®
     [SerializeField]
-    private GameObject btnRoute;//ÊÇ·ñARµ¼º½Â·¾¶°´Å¥
+    private GameObject btnRoute;//æ˜¯å¦ARå¯¼èˆªè·¯å¾„æŒ‰é’®
     [SerializeField]
-    private GameObject btnPlay;//ÊÓÆµ²¥·Å°´Å¥
+    private GameObject btnPlay;//è§†é¢‘æ’­æ”¾æŒ‰é’®
     [SerializeField]
-    private GameObject btnPause;//ÊÓÆµÔİÍ£°´Å¥
+    private GameObject btnPause;//è§†é¢‘æš‚åœæŒ‰é’®
     [SerializeField]
-    private GameObject btnAgain;//ÊÓÆµÖØ²¥°´Å¥
+    private GameObject btnAgain;//è§†é¢‘é‡æ’­æŒ‰é’®
 
     [SerializeField]
-    private Slider videoSlider;//ÊÓÆµ½ø¶ÈÌõ
+    private Slider videoSlider;//è§†é¢‘è¿›åº¦æ¡
     [SerializeField]
-    private VideoPlayer videoPlayer;//ÊÓÆµ²¥·ÅÆ÷×é¼ş
+    private VideoPlayer videoPlayer;//è§†é¢‘æ’­æ”¾å™¨ç»„ä»¶
     
     [SerializeField]
-    private List<Sprite> btnRouteSprite;//ARµ¼º½Â·¾¶°´Å¥Í¼Æ¬ÑùÊ½
+    private List<Sprite> btnRouteSprite;//ARå¯¼èˆªè·¯å¾„æŒ‰é’®å›¾ç‰‡æ ·å¼
 
-    private GameObject lineRendererInWorld;//ARµ¼º½Ïß
+    private GameObject lineRendererInWorld;//ARå¯¼èˆªçº¿
 
-    private bool isAR = false;//ÊÇ·ñ´¦ÓÚARµ¼º½Ä£Ê½
-    private bool isBtnStopOn = false;//Í£Ö¹µ¼º½°´Å¥ÊÇ·ñÏÔÊ¾
-    private bool isARRouteOn = true;//ARÂ·¾¶ÊÇ·ñÏÔÊ¾
-    private bool isBtnAgainDown = false;//ÖØ²¥°´Å¥ÊÇ·ñÒÑ¾­°´ÏÂ
+    private bool isAR = false;//æ˜¯å¦å¤„äºARå¯¼èˆªæ¨¡å¼
+    private bool isBtnStopOn = false;//åœæ­¢å¯¼èˆªæŒ‰é’®æ˜¯å¦æ˜¾ç¤º
+    private bool isARRouteOn = true;//ARè·¯å¾„æ˜¯å¦æ˜¾ç¤º
+    private bool isBtnAgainDown = false;//é‡æ’­æŒ‰é’®æ˜¯å¦å·²ç»æŒ‰ä¸‹
 
-    private ModeToAR_Type modeType = ModeToAR_Type.Nothing;//×ª»»µ½ARÄ£Ê½Ê±µÄ×´Ì¬
+    private ModeToAR_Type modeType = ModeToAR_Type.Nothing;//è½¬æ¢åˆ°ARæ¨¡å¼æ—¶çš„çŠ¶æ€
 
     protected override void Awake()
     {
         base.Awake();
-        EventCenter.GetInstance().AddEventListener(EventName.ShowNotification, ShowNotification);//Ìí¼ÓÊÂ¼ş
-        EventCenter.GetInstance().AddEventListener(EventName.StartGuidingDirection, StartGuidingDirection);//Ìí¼ÓÊÂ¼ş
-        EventCenter.GetInstance().AddEventListener(EventName.EndGuidingDirection, EndGuidingDirection);//Ìí¼ÓÊÂ¼ş
-        EventCenter.GetInstance().AddEventListener(EventName.VideoIntroduction, VideoIntroduction);//Ìí¼ÓÊÂ¼ş
-        EventCenter.GetInstance().AddEventListener(EventName.ChangeModeToARGuidingType, ChangeModeToARGuidingType);//Ìí¼ÓÊÂ¼ş
+        EventCenter.GetInstance().AddEventListener(EventName.ShowNotification, ShowNotification);//æ·»åŠ äº‹ä»¶
+        EventCenter.GetInstance().AddEventListener(EventName.StartGuidingDirection, StartGuidingDirection);//æ·»åŠ äº‹ä»¶
+        EventCenter.GetInstance().AddEventListener(EventName.EndGuidingDirection, EndGuidingDirection);//æ·»åŠ äº‹ä»¶
+        EventCenter.GetInstance().AddEventListener(EventName.VideoIntroduction, VideoIntroduction);//æ·»åŠ äº‹ä»¶
+        EventCenter.GetInstance().AddEventListener(EventName.ChangeModeToARGuidingType, ChangeModeToARGuidingType);//æ·»åŠ äº‹ä»¶
 
         //MonoMgr.GetInstance().AddUpdateListener(systemUpdate);
     }
@@ -93,14 +93,14 @@ public class SystemPanel : BasePanel
 
     private void systemUpdate()
     {
-        videoSlider.value = (float)videoPlayer.time / (float)videoPlayer.clip.length;//²¥·Å½ø¶È
-        if (videoPlayer.frame == (long)(videoPlayer.frameCount - 1))//²¥·ÅÍê±Ï
+        videoSlider.value = (float)videoPlayer.time / (float)videoPlayer.clip.length;//æ’­æ”¾è¿›åº¦
+        if (videoPlayer.frame == (long)(videoPlayer.frameCount - 1))//æ’­æ”¾å®Œæ¯•
         {
-            if (!isBtnAgainDown)//µÚÒ»´Î²¥Íê»òÕßÖØ²¥¼üÎ´°´ÏÂ
+            if (!isBtnAgainDown)//ç¬¬ä¸€æ¬¡æ’­å®Œæˆ–è€…é‡æ’­é”®æœªæŒ‰ä¸‹
             {
-                Debug.Log("¿ªÆô°´Å¥");
-                btnAgain.SetActive(true);//µ¯³öÖØ²¥°´Å¥
-                btnShowPause.GetComponent<Button>().onClick.RemoveListener(ShowPause);//²¥·ÅÍêÊ±ÒÆ³ıRawImageÊÂ¼ş¼àÌı
+                Debug.Log("å¼€å¯æŒ‰é’®");
+                btnAgain.SetActive(true);//å¼¹å‡ºé‡æ’­æŒ‰é’®
+                btnShowPause.GetComponent<Button>().onClick.RemoveListener(ShowPause);//æ’­æ”¾å®Œæ—¶ç§»é™¤RawImageäº‹ä»¶ç›‘å¬
                 MonoMgr.GetInstance().RemoveUpdateListener(systemUpdate);
             }
         }
@@ -111,54 +111,54 @@ public class SystemPanel : BasePanel
         base.OnClick(btnName);
         switch (btnName)
         {
-            case "btnConfirm"://ĞÅÏ¢¿òÈ·ÈÏ°´Å¥
+            case "btnConfirm"://ä¿¡æ¯æ¡†ç¡®è®¤æŒ‰é’®
                 ModeChange(!isAR);
                 CloseDebug();
                 break;
-            case "btnLocating"://¶¨Î»
+            case "btnLocating"://å®šä½
                 GaoDeAPI.GetInstance().IsLocating = true;
                 GaoDeAPI.GetInstance().OnLocating();
                 break;
-            case "btnChangeMode"://×ª»»µ¼º½Ä£Ê½
+            case "btnChangeMode"://è½¬æ¢å¯¼èˆªæ¨¡å¼
                 ModeChange(!isAR);
                 break;
-            case "btnStop"://Í£Ö¹µ¼º½
+            case "btnStop"://åœæ­¢å¯¼èˆª
                 this.TriggerEvent(EventName.EndGuidingDirection);
                 break;
-            case "btnRoute"://ÊÇ·ñÏÔÊ¾ARµ¼º½Â·¾¶
-                if (lineRendererInWorld)//Èç¹û´æÔÚ
+            case "btnRoute"://æ˜¯å¦æ˜¾ç¤ºARå¯¼èˆªè·¯å¾„
+                if (lineRendererInWorld)//å¦‚æœå­˜åœ¨
                 {
                     isARRouteOn = !isARRouteOn;
-                    lineRendererInWorld.SetActive(isARRouteOn);//Ê¹ÆäÊ§»î
-                    if (isARRouteOn)//´ËÊ±ARÂ·¾¶ÓĞÏÔÊ¾
+                    lineRendererInWorld.SetActive(isARRouteOn);//ä½¿å…¶å¤±æ´»
+                    if (isARRouteOn)//æ­¤æ—¶ARè·¯å¾„æœ‰æ˜¾ç¤º
                     {
-                        btnRoute.GetComponent<Image>().sprite = btnRouteSprite[0];//¸Ä±ä°´Å¥Í¼Æ¬ÑùÊ½
+                        btnRoute.GetComponent<Image>().sprite = btnRouteSprite[0];//æ”¹å˜æŒ‰é’®å›¾ç‰‡æ ·å¼
                     }
                     else
                     {
-                        btnRoute.GetComponent<Image>().sprite = btnRouteSprite[1];//¸Ä±ä°´Å¥Í¼Æ¬ÑùÊ½
+                        btnRoute.GetComponent<Image>().sprite = btnRouteSprite[1];//æ”¹å˜æŒ‰é’®å›¾ç‰‡æ ·å¼
                     }
                 }
                 break;
-            case "btnPlay"://²¥·ÅÊÓÆµ
+            case "btnPlay"://æ’­æ”¾è§†é¢‘
                 btnPlay.SetActive(false);
                 videoPlayer.Play();
-                btnShowPause.GetComponent<Button>().onClick.AddListener(ShowPause);//²¥·ÅÊ±Ìí¼ÓRawImageÊÂ¼ş¼àÌı
+                btnShowPause.GetComponent<Button>().onClick.AddListener(ShowPause);//æ’­æ”¾æ—¶æ·»åŠ RawImageäº‹ä»¶ç›‘å¬
                 MonoMgr.GetInstance().AddUpdateListener(systemUpdate);
                 break;
-            case "btnPause"://ÔİÍ£ÊÓÆµ
+            case "btnPause"://æš‚åœè§†é¢‘
                 btnPause.SetActive(false);
                 videoPlayer.Pause();
                 btnPlay.SetActive(true);
-                btnShowPause.GetComponent<Button>().onClick.RemoveListener(ShowPause);//ÔİÍ£Ê±ÒÆ³ıRawImageÊÂ¼ş¼àÌı
+                btnShowPause.GetComponent<Button>().onClick.RemoveListener(ShowPause);//æš‚åœæ—¶ç§»é™¤RawImageäº‹ä»¶ç›‘å¬
                 break;
-            case "btnAgain"://ÖØ²¥ÊÓÆµ
+            case "btnAgain"://é‡æ’­è§†é¢‘
                 btnAgain.SetActive(false);
                 videoPlayer.time = 0;
                 videoPlayer.Play();
                 isBtnAgainDown = true;
                 MonoMgr.GetInstance().AddUpdateListener(systemUpdate);
-                btnShowPause.GetComponent<Button>().onClick.AddListener(ShowPause);//²¥·ÅÊ±Ìí¼ÓRawImageÊÂ¼ş¼àÌı
+                btnShowPause.GetComponent<Button>().onClick.AddListener(ShowPause);//æ’­æ”¾æ—¶æ·»åŠ RawImageäº‹ä»¶ç›‘å¬
                 Invoke("SetBtnAgainDownFalse", 1f);
                 break;
         }
@@ -187,7 +187,7 @@ public class SystemPanel : BasePanel
 
     private void StartGuidingDirection(object sender, EventArgs e)
     {
-        if (isBtnStopOn)//ÒÑ¾­¿ªÆô°´Å¥£¬Ö±½Ó·µ»Ø
+        if (isBtnStopOn)//å·²ç»å¼€å¯æŒ‰é’®ï¼Œç›´æ¥è¿”å›
             return;
         btnStop.SetActive(true);
         isBtnStopOn = true;
@@ -198,18 +198,18 @@ public class SystemPanel : BasePanel
         btnStop.SetActive(false);
         isBtnStopOn = false;
         modeType = ModeToAR_Type.Nothing;
-        if (isAR)//Èç¹û´ËÊ±ÎªARµ¼º½Ä£Ê½£¬°ÑARµ¼º½ÏÔÊ¾°´Å¥Ò²Òş²Ø
+        if (isAR)//å¦‚æœæ­¤æ—¶ä¸ºARå¯¼èˆªæ¨¡å¼ï¼ŒæŠŠARå¯¼èˆªæ˜¾ç¤ºæŒ‰é’®ä¹Ÿéšè—
         {
-            if (lineRendererInWorld)//Èç¹û´æÔÚ
+            if (lineRendererInWorld)//å¦‚æœå­˜åœ¨
             {
-                //lineRendererInWorld.SetActive(false);//Ê¹ÆäÊ§»î
-                Destroy(lineRendererInWorld);//Ïú»Ù
+                //lineRendererInWorld.SetActive(false);//ä½¿å…¶å¤±æ´»
+                Destroy(lineRendererInWorld);//é”€æ¯
             }
             btnRoute.SetActive(false);
         }
         if (GaoDeAPI.GetInstance().LineRendererInMap != null)
         {
-            GaoDeAPI.GetInstance().LineRendererInMap.positionCount = 0;//Â·¾¶µãÊıÖÃÎª0
+            GaoDeAPI.GetInstance().LineRendererInMap.positionCount = 0;//è·¯å¾„ç‚¹æ•°ç½®ä¸º0
         }
         this.TriggerEvent(EventName.UpdateGuidingInfo, new UpdateGuidingInfoArgs
         {
@@ -220,7 +220,7 @@ public class SystemPanel : BasePanel
     }
 
     /// <summary>
-    /// ÏÔÊ¾Í¨Öª
+    /// æ˜¾ç¤ºé€šçŸ¥
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
@@ -238,7 +238,7 @@ public class SystemPanel : BasePanel
         message.text = s;
         Message.SetActive(true);
         btnConfirm.SetActive(isBtnOn);
-        if (autoOff)//Èç¹û¸ÃÌõÏûÏ¢ĞèÒª×Ô¶¯¹Ø±Õ£¬ÔòÖ´ĞĞInvoke
+        if (autoOff)//å¦‚æœè¯¥æ¡æ¶ˆæ¯éœ€è¦è‡ªåŠ¨å…³é—­ï¼Œåˆ™æ‰§è¡ŒInvoke
         {
             Invoke("CloseDebug", 2);
         }
@@ -252,7 +252,7 @@ public class SystemPanel : BasePanel
 
     private void VideoIntroduction(object sender, EventArgs e)
     {
-        Video.SetActive(true);//´ò¿ªÊÓÆµ
+        Video.SetActive(true);//æ‰“å¼€è§†é¢‘
     }
 
     private void ChangeModeToARGuidingType(object sender,EventArgs e)
@@ -270,7 +270,7 @@ public class SystemPanel : BasePanel
         {
             this.TriggerEvent(EventName.ShowNotification, new ShowNotificationArgs
             {
-                message = "ÇëÏÈÑ¡ÔñÄ¿µÄµØ£¬ÔÙ½øÈë AR µ¼ÀÀ¡£",
+                message = "è¯·å…ˆé€‰æ‹©ç›®çš„åœ°ï¼Œå†è¿›å…¥ AR å¯¼è§ˆã€‚",
                 isBtnOn = false,
                 autoOff = true
             });
@@ -278,24 +278,24 @@ public class SystemPanel : BasePanel
         }
 
         isAR = isar;
-        if (isar)//¿ªÆôARµ¼º½Ä£Ê½
+        if (isar)//å¼€å¯ARå¯¼èˆªæ¨¡å¼
         {
             UIManager.GetInstance().HidePanel("MapPanel");
             UIManager.GetInstance().HidePanel("InfoPanel");
 
-            if (InfoPanel.desIndex != 4)//Î´Ñ¡Ôñ»Æ»¨ÎÄ»¯¹İÄ¿µÄµØÊ±£¬²ÅÓĞĞéÄâµ¼ÓÎ
+            if (InfoPanel.desIndex != 4)//æœªé€‰æ‹©é»„èŠ±æ–‡åŒ–é¦†ç›®çš„åœ°æ—¶ï¼Œæ‰æœ‰è™šæ‹Ÿå¯¼æ¸¸
             {
-                ARGroundPlane.GetInstance().SetPlaneFinderActive(true);//¿ªÆôÆ½Ãæ¼ì²â
-                ARGroundPlane.GetInstance().AddListener();//Ìí¼Ó¼ì²âÆ½ÃæÊÂ¼ş
+                ARGroundPlane.GetInstance().SetPlaneFinderActive(true);//å¼€å¯å¹³é¢æ£€æµ‹
+                ARGroundPlane.GetInstance().AddListener();//æ·»åŠ æ£€æµ‹å¹³é¢äº‹ä»¶
             }
             else
             {
-                Video.SetActive(true); //Ñ¡Ôñ»Æ»¨ÎÄ»¯¹İÄ¿µÄµØÊ±£¬ÊÇÊÓÆµ½éÉÜ
+                Video.SetActive(true); //é€‰æ‹©é»„èŠ±æ–‡åŒ–é¦†ç›®çš„åœ°æ—¶ï¼Œæ˜¯è§†é¢‘ä»‹ç»
             }
 
             GaoDeAPI.GetInstance().IsARGuiding = true;
 
-            //¼ÓÔØARµ¼º½ÏßÔ¤ÖÆÌå
+            //åŠ è½½ARå¯¼èˆªçº¿é¢„åˆ¶ä½“
             ResMgr.GetInstance().LoadAsync<GameObject>("Prefabs/RouteInWorld", (obj) =>
             {
                 if (!isAR)
@@ -316,26 +316,26 @@ public class SystemPanel : BasePanel
 
             switch (modeType)
             {
-                case ModeToAR_Type.Nothing://Î´¿ªÊ¼µ¼º½£¬²»ÏÔÊ¾Í£Ö¹µ¼º½°´Å¥ºÍARµ¼º½Ïß°´Å¥
-                case ModeToAR_Type.Arrived://µ½´ïÄ¿µÄµØ£¬²»ÏÔÊ¾Í£Ö¹µ¼º½°´Å¥ºÍARµ¼º½Ïß°´Å¥
+                case ModeToAR_Type.Nothing://æœªå¼€å§‹å¯¼èˆªï¼Œä¸æ˜¾ç¤ºåœæ­¢å¯¼èˆªæŒ‰é’®å’ŒARå¯¼èˆªçº¿æŒ‰é’®
+                case ModeToAR_Type.Arrived://åˆ°è¾¾ç›®çš„åœ°ï¼Œä¸æ˜¾ç¤ºåœæ­¢å¯¼èˆªæŒ‰é’®å’ŒARå¯¼èˆªçº¿æŒ‰é’®
                     btnStop.SetActive(false);
                     btnRoute.SetActive(false);
                     isBtnStopOn = false;
                     break;
-                case ModeToAR_Type.StartGuiding://ÒÑ¾­¿ªÊ¼µ¼º½£¬ÏÔÊ¾Í£Ö¹µ¼º½°´Å¥ºÍARµ¼º½Ïß°´Å¥
+                case ModeToAR_Type.StartGuiding://å·²ç»å¼€å§‹å¯¼èˆªï¼Œæ˜¾ç¤ºåœæ­¢å¯¼èˆªæŒ‰é’®å’ŒARå¯¼èˆªçº¿æŒ‰é’®
                     btnStop.SetActive(true);
                     btnRoute.SetActive(true);
                     isBtnStopOn = true;
                     break;
             }
         }
-        else//¹Ø±ÕARµ¼º½Ä£Ê½
+        else//å…³é—­ARå¯¼èˆªæ¨¡å¼
         {
             UIManager.GetInstance().ShowPanel<MapPanel>("MapPanel", UI_Layer.Bot);
             UIManager.GetInstance().ShowPanel<InfoPanel>("InfoPanel", UI_Layer.Top);
 
-            ARGroundPlane.GetInstance().SetPlaneFinderActive(false);//¹Ø±ÕÆ½Ãæ¼ì²â
-            this.TriggerEvent(EventName.ChangeModeTo2DGuiding);//´¥·¢ÊÂ¼ş
+            ARGroundPlane.GetInstance().SetPlaneFinderActive(false);//å…³é—­å¹³é¢æ£€æµ‹
+            this.TriggerEvent(EventName.ChangeModeTo2DGuiding);//è§¦å‘äº‹ä»¶
 
             GaoDeAPI.GetInstance().IsARGuiding = false;
 
@@ -343,7 +343,7 @@ public class SystemPanel : BasePanel
             lineRendererInWorld = null;
             GaoDeAPI.GetInstance().LineRendererInWorld = null;
 
-            if (Video.activeSelf)//Èç¹ûÊÓÆµ´°¿Ú´ò¿ª
+            if (Video.activeSelf)//å¦‚æœè§†é¢‘çª—å£æ‰“å¼€
             {
                 videoPlayer.Stop();
                 btnPlay.SetActive(true);
@@ -357,11 +357,11 @@ public class SystemPanel : BasePanel
     protected override void OnDestroy()
     {
         base.OnDestroy();
-        EventCenter.GetInstance().RemoveEventListener(EventName.ShowNotification, ShowNotification);//ÒÆ³ıÊÂ¼ş
-        EventCenter.GetInstance().RemoveEventListener(EventName.StartGuidingDirection, StartGuidingDirection);//ÒÆ³ıÊÂ¼ş
-        EventCenter.GetInstance().RemoveEventListener(EventName.EndGuidingDirection, EndGuidingDirection);//ÒÆ³ıÊÂ¼ş
-        EventCenter.GetInstance().RemoveEventListener(EventName.VideoIntroduction, VideoIntroduction);//ÒÆ³ıÊÂ¼ş
-        EventCenter.GetInstance().RemoveEventListener(EventName.ChangeModeToARGuidingType, ChangeModeToARGuidingType);//ÒÆ³ıÊÂ¼ş
+        EventCenter.GetInstance().RemoveEventListener(EventName.ShowNotification, ShowNotification);//ç§»é™¤äº‹ä»¶
+        EventCenter.GetInstance().RemoveEventListener(EventName.StartGuidingDirection, StartGuidingDirection);//ç§»é™¤äº‹ä»¶
+        EventCenter.GetInstance().RemoveEventListener(EventName.EndGuidingDirection, EndGuidingDirection);//ç§»é™¤äº‹ä»¶
+        EventCenter.GetInstance().RemoveEventListener(EventName.VideoIntroduction, VideoIntroduction);//ç§»é™¤äº‹ä»¶
+        EventCenter.GetInstance().RemoveEventListener(EventName.ChangeModeToARGuidingType, ChangeModeToARGuidingType);//ç§»é™¤äº‹ä»¶
 
         //MonoMgr.GetInstance().RemoveUpdateListener(systemUpdate);
     }
