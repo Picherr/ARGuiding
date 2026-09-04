@@ -199,9 +199,8 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
             isLocating = false;
         }
         yield break;
-#endif
-
-#if UNITY_ANDROID && !UNITY_EDITOR
+#else
+#if UNITY_ANDROID
         if (!Permission.HasUserAuthorizedPermission(Permission.FineLocation))
         {
             Permission.RequestUserPermission(Permission.FineLocation);
@@ -228,6 +227,7 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
         {
             isLocating = false;
         }
+#endif
     }
 
     private IEnumerator GPS()
