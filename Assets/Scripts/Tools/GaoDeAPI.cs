@@ -12,8 +12,8 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
 {
     private string longitude;//unity坐标经度
     private string latitude;//unity坐标纬度
-    private string GDlongitude = "113.295082";//高德坐标经度
-    private string GDlatitude = "23.138099";//高德坐标纬度
+    private string GDlongitude = NavigationDefaults.ParkCenterLongitude.ToString("0.000000", CultureInfo.InvariantCulture);//高德坐标经度
+    private string GDlatitude = NavigationDefaults.ParkCenterLatitude.ToString("0.000000", CultureInfo.InvariantCulture);//高德坐标纬度
 
     private Text searchinfo;
     private InputField search;
@@ -73,7 +73,7 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
         }
 
         isGuiding = true;
-        InvokeRepeating("OnDirection", 0, 3f);
+        InvokeRepeating(nameof(OnDirection), 0f, NavigationDefaults.DirectionRefreshSeconds);
     }
 
     private void EndGuidingDirection(object sender, EventArgs e)
@@ -121,8 +121,9 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
         }
 
 #if UNITY_EDITOR
-        GDlongitude = "113.295082";
-        GDlatitude = "23.138099";
+        GDlongitude = NavigationDefaults.ParkCenterLongitude.ToString("0.000000", CultureInfo.InvariantCulture);
+        GDlatitude = NavigationDefaults.ParkCenterLatitude.ToString("0.000000", CultureInfo.InvariantCulture);
+        Location.mLatLng = NavigationDefaults.CreateParkCenter();
         hasValidLocation = true;
 #else
         if (isLocatingInProgress)
@@ -187,9 +188,9 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
         isLocatingInProgress = true;
 
 #if UNITY_EDITOR
-        GDlongitude = "113.295082";
-        GDlatitude = "23.138099";
-        Location.mLatLng = new LatLng(113.295082d, 23.138099d);
+        GDlongitude = NavigationDefaults.ParkCenterLongitude.ToString("0.000000", CultureInfo.InvariantCulture);
+        GDlatitude = NavigationDefaults.ParkCenterLatitude.ToString("0.000000", CultureInfo.InvariantCulture);
+        Location.mLatLng = NavigationDefaults.CreateParkCenter();
         hasValidLocation = true;
         isLocatingInProgress = false;
         if (isLocating)
@@ -198,9 +199,8 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
             isLocating = false;
         }
         yield break;
-#endif
-
-#if UNITY_ANDROID && !UNITY_EDITOR
+#else
+#if UNITY_ANDROID
         if (!Permission.HasUserAuthorizedPermission(Permission.FineLocation))
         {
             Permission.RequestUserPermission(Permission.FineLocation);
@@ -227,6 +227,7 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
         {
             isLocating = false;
         }
+#endif
     }
 
     private IEnumerator GPS()
@@ -510,38 +511,19 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
         ShowMessage(operation + "失败，请检查网络后重试。");
     }
 
-    private static string GetApiError(JsonData response)
-    {
-        if (response == null)
-        {
-            return string.Empty;
-        }
-
-        try
-        {
-            string info = response["info"].ToString();
-            return string.IsNullOrEmpty(info) ? string.Empty : "（" + info + "）";
-        }
-        catch
-        {
-            return string.Empty;
-        }
-    }
-
     private void ProcessDirectionResponse(string responseText)
     {
-        JsonData jd = JsonMapper.ToObject(responseText);
-        if (jd["status"].ToString() != "1" || jd["route"] == null ||
-            jd["route"]["paths"] == null || jd["route"]["paths"].Count == 0 ||
-            jd["route"]["paths"][0]["steps"] == null || jd["route"]["paths"][0]["steps"].Count == 0)
+        WalkingRouteData routeData;
+        string parseError;
+        if (!AmapResponseParser.TryParseWalkingRoute(responseText, out routeData, out parseError))
         {
-            ShowMessage("未获取到可用的步行路线。" + GetApiError(jd));
+            ShowMessage(parseError);
             return;
         }
 
         if (Conversion.GetDistance(Info.DesCoord(InfoPanel.desIndex).y, Info.DesCoord(InfoPanel.desIndex).x,
                 float.Parse(GDlatitude, CultureInfo.InvariantCulture),
-                float.Parse(GDlongitude, CultureInfo.InvariantCulture)) < 20)
+                float.Parse(GDlongitude, CultureInfo.InvariantCulture)) < NavigationDefaults.ArrivalDistanceMeters)
         {
             this.TriggerEvent(EventName.ShowNotification, new ShowNotificationArgs
             {
@@ -557,12 +539,11 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
             return;
         }
 
-        JsonData path = jd["route"]["paths"][0];
         this.TriggerEvent(EventName.UpdateGuidingInfo, new UpdateGuidingInfoArgs
         {
-            guidingText = path["steps"][0]["instruction"].ToString(),
+            guidingText = routeData.Instruction,
             desName = Info.DesInfo(InfoPanel.desIndex),
-            disMiles = path["distance"].ToString()
+            disMiles = routeData.Distance
         });
 
         List<Vector3> waypoints = new List<Vector3>();
@@ -570,32 +551,17 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
         Vector3 nextDirectionPoint = Vector3.zero;
         float currentLatitude = float.Parse(GDlatitude, CultureInfo.InvariantCulture);
         float currentLongitude = float.Parse(GDlongitude, CultureInfo.InvariantCulture);
-        for (int i = 0; i < path["steps"].Count; i++)
+        for (int i = 0; i < routeData.Waypoints.Count; i++)
         {
-            string[] polyline = path["steps"][i]["polyline"].ToString().Split(';');
-            for (int j = i == 0 ? 0 : 1; j < polyline.Length; j++)
+            LatLng waypoint = routeData.Waypoints[i];
+            float lng = (float)waypoint.Longitude;
+            float lat = (float)waypoint.Latitude;
+            waypoints.Add(Conversion.GetWorldPoint(new Vector2(lng, lat)));
+            if (!hasNextDirectionPoint &&
+                Conversion.GetDistance(currentLatitude, currentLongitude, lat, lng) >= 2f)
             {
-                string[] points = polyline[j].Split(',');
-                if (points.Length != 2)
-                {
-                    continue;
-                }
-
-                float lng;
-                float lat;
-                if (!float.TryParse(points[0], NumberStyles.Float, CultureInfo.InvariantCulture, out lng) ||
-                    !float.TryParse(points[1], NumberStyles.Float, CultureInfo.InvariantCulture, out lat))
-                {
-                    continue;
-                }
-
-                waypoints.Add(Conversion.GetWorldPoint(new Vector2(lng, lat)));
-                if (!hasNextDirectionPoint &&
-                    Conversion.GetDistance(currentLatitude, currentLongitude, lat, lng) >= 2f)
-                {
-                    nextDirectionPoint = new Vector3(lng, 0, lat);
-                    hasNextDirectionPoint = true;
-                }
+                nextDirectionPoint = new Vector3(lng, 0, lat);
+                hasNextDirectionPoint = true;
             }
         }
 
@@ -608,34 +574,17 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
 
     private void ApplyConvertedLocation(string responseText)
     {
-        JsonData jd = JsonMapper.ToObject(responseText);
-        if (jd["status"].ToString() != "1" || jd["locations"] == null)
+        LatLng convertedLocation;
+        string parseError;
+        if (!AmapResponseParser.TryParseConvertedLocation(responseText, out convertedLocation, out parseError))
         {
-            ShowMessage("高德坐标转换失败。" + GetApiError(jd));
+            ShowMessage(parseError);
             return;
         }
 
-        string[] convertedLocation = jd["locations"].ToString().Split(',');
-        if (convertedLocation.Length != 2)
-        {
-            ShowMessage("高德坐标转换返回了无效坐标。");
-            return;
-        }
-
-        double convertedLongitude;
-        double convertedLatitude;
-        if (!double.TryParse(convertedLocation[0], NumberStyles.Float, CultureInfo.InvariantCulture,
-                out convertedLongitude) ||
-            !double.TryParse(convertedLocation[1], NumberStyles.Float, CultureInfo.InvariantCulture,
-                out convertedLatitude))
-        {
-            ShowMessage("高德坐标转换返回了无法解析的坐标。");
-            return;
-        }
-
-        GDlongitude = convertedLongitude.ToString("0.000000", CultureInfo.InvariantCulture);
-        GDlatitude = convertedLatitude.ToString("0.000000", CultureInfo.InvariantCulture);
-        Location.mLatLng = new LatLng(convertedLongitude, convertedLatitude);
+        GDlongitude = convertedLocation.Longitude.ToString("0.000000", CultureInfo.InvariantCulture);
+        GDlatitude = convertedLocation.Latitude.ToString("0.000000", CultureInfo.InvariantCulture);
+        Location.mLatLng = convertedLocation;
         hasValidLocation = true;
 
         if (isLocating)
