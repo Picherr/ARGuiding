@@ -1,14 +1,14 @@
 /// <summary>
-/// ¹ÜÀíÆ÷»ùÀà
-/// 1.·ºĞÍ
-/// 2.Éè¼ÆÄ£Ê½-µ¥ÀıÄ£Ê½
+/// ç®¡ç†å™¨åŸºç±»
+/// 1.æ³›å‹
+/// 2.è®¾è®¡æ¨¡å¼-å•ä¾‹æ¨¡å¼
 /// </summary>
 /// <typeparam name="T"></typeparam>
 public class BaseManager<T> where T : new()
 {
     private static T instance;
 
-    //´´½¨µ¥Àı-ÀÁººÊ½
+    //åˆ›å»ºå•ä¾‹-æ‡’æ±‰å¼
     public static T GetInstance()
     {
         if (instance == null)

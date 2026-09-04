@@ -12,9 +12,9 @@ public enum UI_Layer
 }
 
 /// <summary>
-/// UI¹ÜÀíÆ÷
-/// 1.¹ÜÀíËùÓĞÏÔÊ¾µÄÃæ°å
-/// 2.Ìá¹©¸øÍâ²¿ÏÔÊ¾ºÍÒş²ØµÈ½Ó¿Ú
+/// UIç®¡ç†å™¨
+/// 1.ç®¡ç†æ‰€æœ‰æ˜¾ç¤ºçš„é¢æ¿
+/// 2.æä¾›ç»™å¤–éƒ¨æ˜¾ç¤ºå’Œéšè—ç­‰æ¥å£
 /// </summary>
 public class UIManager : BaseManager<UIManager>
 {
@@ -27,29 +27,29 @@ public class UIManager : BaseManager<UIManager>
     private Transform top;
     private Transform system;
 
-    //¼ÇÂ¼Canvas¸¸¶ÔÏó£¬·½±ãÒÔºóÍâ²¿¿ÉÄÜ»áÊ¹ÓÃËü
+    //è®°å½•Canvasçˆ¶å¯¹è±¡ï¼Œæ–¹ä¾¿ä»¥åå¤–éƒ¨å¯èƒ½ä¼šä½¿ç”¨å®ƒ
     public RectTransform canvas;
 
     public UIManager()
     {
-        //ÕÒµ½Canvas¶ÔÏó
+        //æ‰¾åˆ°Canvaså¯¹è±¡
         GameObject obj = ResMgr.GetInstance().Load<GameObject>("UI/Canvas");
         canvas = obj.transform as RectTransform;
         GameObject.DontDestroyOnLoad(obj);
 
-        //ÕÒµ½¸÷²ã
+        //æ‰¾åˆ°å„å±‚
         bot = canvas.Find("Bot");
         mid = canvas.Find("Mid");
         top = canvas.Find("Top");
         system = canvas.Find("System");
 
-        //´´½¨EventSystemÊ¹Æä¹ı³¡¾°Ê±²»±»ÒÆ³ı
+        //åˆ›å»ºEventSystemä½¿å…¶è¿‡åœºæ™¯æ—¶ä¸è¢«ç§»é™¤
         obj = ResMgr.GetInstance().Load<GameObject>("UI/EventSystem");
         GameObject.DontDestroyOnLoad(obj);
     }
 
     /// <summary>
-    /// Í¨¹ı²ã¼¶Ã¶¾Ù£¬µÃµ½¶ÔÓ¦µÄ¸¸¶ÔÏó
+    /// é€šè¿‡å±‚çº§æšä¸¾ï¼Œå¾—åˆ°å¯¹åº”çš„çˆ¶å¯¹è±¡
     /// </summary>
     /// <param name="layer"></param>
     /// <returns></returns>
@@ -70,30 +70,30 @@ public class UIManager : BaseManager<UIManager>
     }
 
     /// <summary>
-    /// ÏÔÊ¾Ãæ°å
+    /// æ˜¾ç¤ºé¢æ¿
     /// </summary>
-    /// <typeparam name="T">Ãæ°å½Å±¾ÀàĞÍ</typeparam>
-    /// <param name="panelName">Ãæ°åÃû³Æ</param>
-    /// <param name="layer">ÏÔÊ¾ÔÚÄÄÒ»²ã</param>
-    /// <param name="callback">Ô¤ÉèÌå´´½¨³É¹¦ºóÒª´¦ÀíµÄÂß¼­</param>
+    /// <typeparam name="T">é¢æ¿è„šæœ¬ç±»å‹</typeparam>
+    /// <param name="panelName">é¢æ¿åç§°</param>
+    /// <param name="layer">æ˜¾ç¤ºåœ¨å“ªä¸€å±‚</param>
+    /// <param name="callback">é¢„è®¾ä½“åˆ›å»ºæˆåŠŸåè¦å¤„ç†çš„é€»è¾‘</param>
     public void ShowPanel<T>(string panelName, UI_Layer layer, UnityAction<T> callback = null) where T : BasePanel
     {
         if (panelDic.ContainsKey(panelName))
         {
-            //´¦ÀíÃæ°å´´½¨Íê³ÉºóµÄÂß¼­
+            //å¤„ç†é¢æ¿åˆ›å»ºå®Œæˆåçš„é€»è¾‘
             if (callback != null)
             {
                 callback(panelDic[panelName] as T);
             }
 
-            //±ÜÃâÃæ°åÖØ¸´¼ÓÔØ£¬Èç¹û´æÔÚ¸ÃÃæ°å¼´Ö±½ÓÏÔÊ¾£¬µ÷ÓÃ»Øµ÷º¯ÊıºóÖ±½Óreturn²»ÔÙ´¦ÀíºóÃæµÄÒì²½¼ÓÔØÂß¼­
+            //é¿å…é¢æ¿é‡å¤åŠ è½½ï¼Œå¦‚æœå­˜åœ¨è¯¥é¢æ¿å³ç›´æ¥æ˜¾ç¤ºï¼Œè°ƒç”¨å›è°ƒå‡½æ•°åç›´æ¥returnä¸å†å¤„ç†åé¢çš„å¼‚æ­¥åŠ è½½é€»è¾‘
             return;
         }
 
         ResMgr.GetInstance().LoadAsync<GameObject>("UI/" + panelName, (obj) =>
         {
-            //°ÑËü×÷ÎªCanvasµÄ×Ó¶ÔÏó
-            //ÉèÖÃËüµÄÏà¶ÔÎ»ÖÃ
+            //æŠŠå®ƒä½œä¸ºCanvasçš„å­å¯¹è±¡
+            //è®¾ç½®å®ƒçš„ç›¸å¯¹ä½ç½®
             Transform father = bot;
             switch (layer)
             {
@@ -107,29 +107,29 @@ public class UIManager : BaseManager<UIManager>
                     father = system;
                     break;
             }
-            //ÉèÖÃ¸¸¶ÔÏó
+            //è®¾ç½®çˆ¶å¯¹è±¡
             obj.transform.SetParent(father);
-            //ÉèÖÃÏà¶ÔÎ»ÖÃºÍ´óĞ¡
+            //è®¾ç½®ç›¸å¯¹ä½ç½®å’Œå¤§å°
             obj.transform.localPosition = Vector3.zero;
             obj.transform.localScale = Vector3.one;
 
             (obj.transform as RectTransform).offsetMax = Vector2.zero;
             (obj.transform as RectTransform).offsetMin = Vector2.zero;
 
-            //µÃµ½Ô¤ÖÆÌåÉÏµÄÃæ°å½Å±¾
+            //å¾—åˆ°é¢„åˆ¶ä½“ä¸Šçš„é¢æ¿è„šæœ¬
             T panel = obj.GetComponent<T>();
-            //´¦ÀíÃæ°å´´½¨Íê³ÉºóµÄÂß¼­
+            //å¤„ç†é¢æ¿åˆ›å»ºå®Œæˆåçš„é€»è¾‘
             if (callback != null)
             {
                 callback(panel);
             }
-            //´æÃæ°å
+            //å­˜é¢æ¿
             panelDic.Add(panelName, panel);
         });
     }
 
     /// <summary>
-    /// Òş²ØÃæ°å
+    /// éšè—é¢æ¿
     /// </summary>
     /// <param name="panelName"></param>
     public void HidePanel(string panelName)
@@ -142,7 +142,7 @@ public class UIManager : BaseManager<UIManager>
     }
 
     /// <summary>
-    /// µÃµ½Ä³Ò»¸öÒÑ¾­ÏÔÊ¾µÄÃæ°å
+    /// å¾—åˆ°æŸä¸€ä¸ªå·²ç»æ˜¾ç¤ºçš„é¢æ¿
     /// </summary>
     public T GetPanel<T>(string panelName) where T : BasePanel
     {
@@ -154,11 +154,11 @@ public class UIManager : BaseManager<UIManager>
     }
 
     /// <summary>
-    /// ¸ø¿Ø¼şÌí¼Ó×Ô¶¨ÒåÊÂ¼ş¼àÌı
+    /// ç»™æ§ä»¶æ·»åŠ è‡ªå®šä¹‰äº‹ä»¶ç›‘å¬
     /// </summary>
-    /// <param name="control">¿Ø¼ş¶ÔÏó</param>
-    /// <param name="type">ÊÂ¼şÀàĞÍ</param>
-    /// <param name="callback">ÊÂ¼şµÄÏìÓ¦º¯Êı</param>
+    /// <param name="control">æ§ä»¶å¯¹è±¡</param>
+    /// <param name="type">äº‹ä»¶ç±»å‹</param>
+    /// <param name="callback">äº‹ä»¶çš„å“åº”å‡½æ•°</param>
     public static void AddCustomEventListener(UIBehaviour control, EventTriggerType type, UnityAction<BaseEventData> callback)
     {
         EventTrigger trigger = control.GetComponent<EventTrigger>();

@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// »¬¶¯·½ÏòÃ¶¾Ù
+/// æ»‘åŠ¨æ–¹å‘æšä¸¾
 /// </summary>
 public enum Direction
 {
@@ -16,7 +16,7 @@ public enum Direction
 }
 
 /// <summary>
-/// ÍßÆ¬ĞÅÏ¢Àà
+/// ç“¦ç‰‡ä¿¡æ¯ç±»
 /// </summary>
 public class TileInfo
 {
@@ -49,17 +49,17 @@ public class TileImageInfo
 }
 
 /// <summary>
-/// ´ËÀàÖĞ ÓĞÁ½¸ö×ø±êÏµ£¬
-/// Ò»¸öÊÇÍßÆ¬µØÍ¼ µÄ×ø±ê
-/// Ò»¸öÊÇÊµÀı»¯prefab °ÑÍßÆ¬µØÍ¼ ¸ºÖµµÄgameobject ×ø±ê
+/// æ­¤ç±»ä¸­ æœ‰ä¸¤ä¸ªåæ ‡ç³»ï¼Œ
+/// ä¸€ä¸ªæ˜¯ç“¦ç‰‡åœ°å›¾ çš„åæ ‡
+/// ä¸€ä¸ªæ˜¯å®ä¾‹åŒ–prefab æŠŠç“¦ç‰‡åœ°å›¾ è´Ÿå€¼çš„gameobject åæ ‡
 /// </summary>
 public class LocationMap : MonoBehaviour
 {
-    //ÎªÊ²Ã´ÉèÖÃ³É256*256£¬ÒòÎª¸ßµÂ·µ»ØµÄÍ¼¾ÍÊÇ256µÄ£¬»¹ÓĞÒ»ÖÖÀàĞÍÊÇ512*512
+    //ä¸ºä»€ä¹ˆè®¾ç½®æˆ256*256ï¼Œå› ä¸ºé«˜å¾·è¿”å›çš„å›¾å°±æ˜¯256çš„ï¼Œè¿˜æœ‰ä¸€ç§ç±»å‹æ˜¯512*512
     public static float TileWidthAndHeigth = 256;
     public int TileZoom = 18;
 
-    //¼ÓÔØµÄImage µÄËõ·Å
+    //åŠ è½½çš„Image çš„ç¼©æ”¾
     public static float TileScale = 1;
 
     [SerializeField]
@@ -67,21 +67,21 @@ public class LocationMap : MonoBehaviour
 
     private List<TileImageInfo> TileMaps = null;
 
-    //ÖĞĞÄ ÍßÆ¬ĞÅÏ¢Àà
+    //ä¸­å¿ƒ ç“¦ç‰‡ä¿¡æ¯ç±»
     private TileInfo m_centerTileInfo = null;
     private LatLng currentMapCenter;
 
-    //×îºÃÊÇÕı·½ĞÎ£¬ÈİÒ×¼ÆËã£¬Ä¿Ç°Ã»´¦Àí ·ÇÕı·½ĞÎ
-    //ÍßÆ¬ĞĞÊı
+    //æœ€å¥½æ˜¯æ­£æ–¹å½¢ï¼Œå®¹æ˜“è®¡ç®—ï¼Œç›®å‰æ²¡å¤„ç† éæ­£æ–¹å½¢
+    //ç“¦ç‰‡è¡Œæ•°
     public readonly int TileRow = 7;
-    //ÍßÆ¬ÁĞÊı
+    //ç“¦ç‰‡åˆ—æ•°
     public readonly int TileColumn = 7;
 
     private void Awake()
     {
-        Debug.Log("Éú³ÉLocationMap");
+        Debug.Log("ç”ŸæˆLocationMap");
         TileScale = TileMap.transform.localScale.x;
-        //EventCenter.GetInstance().AddEventListener(EventName.LocatedTheFstTime, LocatedTheFstTime);//Ìí¼ÓLocatedTheFstTimeÊÂ¼ş£¬µ±Ó¦ÓÃ¸Õ´ò¿ªÊ±³õÊ¼»¯ÍßÆ¬µØÍ¼£¬Ö®ºó²»ÔÙ¸üĞÂ
+        //EventCenter.GetInstance().AddEventListener(EventName.LocatedTheFstTime, LocatedTheFstTime);//æ·»åŠ LocatedTheFstTimeäº‹ä»¶ï¼Œå½“åº”ç”¨åˆšæ‰“å¼€æ—¶åˆå§‹åŒ–ç“¦ç‰‡åœ°å›¾ï¼Œä¹‹åä¸å†æ›´æ–°
     }
 
     private void Start()
@@ -94,9 +94,9 @@ public class LocationMap : MonoBehaviour
 
     private void LocatedTheFstTime(object sender, EventArgs e)
     {
-        Debug.Log("½øÈëLocatedTheFstTime");
+        Debug.Log("è¿›å…¥LocatedTheFstTime");
         StartCoroutine(InitTileInfo());
-        Debug.Log("Íê³ÉLocatedTheFstTime");
+        Debug.Log("å®ŒæˆLocatedTheFstTime");
     }
 
     private IEnumerator InitTileInfo()
@@ -163,7 +163,7 @@ public class LocationMap : MonoBehaviour
 
     private void InitAllTile()
     {
-        //ÇóµÄ ×óÉÏ½ÇµÄ x ºÍ yµÄ ÍßÆ¬Öµ
+        //æ±‚çš„ å·¦ä¸Šè§’çš„ x å’Œ yçš„ ç“¦ç‰‡å€¼
         int x = m_centerTileInfo.TileX - (TileColumn - 1) / 2;
         int y = m_centerTileInfo.TileY - (TileRow - 1) / 2;
         double globalPixelX = m_centerTileInfo.TileX * TileWidthAndHeigth + m_centerTileInfo.PixelX;
@@ -175,7 +175,7 @@ public class LocationMap : MonoBehaviour
             Location.GlobalPixelToLatLng(globalPixelX + viewportSize / 2d,
                 globalPixelY + viewportSize / 2d, TileZoom));
 
-        //×óÉÏ½ÇImage Í¼Æ¬µÄ×ø±ê
+        //å·¦ä¸Šè§’Image å›¾ç‰‡çš„åæ ‡
         Vector3 sour = new Vector3(
             -TileWidthAndHeigth * (TileColumn - 1) / 2 * TileScale +
             (TileWidthAndHeigth / 2 - m_centerTileInfo.PixelX) * TileScale,
@@ -191,13 +191,13 @@ public class LocationMap : MonoBehaviour
                 GameObject g = Instantiate(TileMap, transform);
                 g.transform.localPosition = sour + new Vector3(j * TileWidthAndHeigth * TileScale, 0, 0);
 
-                //ÇóÈ¡ÍßÆ¬µØÍ¼ºáÏò×ø±ê
+                //æ±‚å–ç“¦ç‰‡åœ°å›¾æ¨ªå‘åæ ‡
                 int _x = x + j;
                 
-                //¼ÓÔØÍßÆ¬µØÍ¼
+                //åŠ è½½ç“¦ç‰‡åœ°å›¾
                 StartCoroutine(Location.SetMap(_x, y, g.GetComponent<Image>(), TileZoom));
 
-                //ÍßÆ¬Image ´æÈëÊı×é
+                //ç“¦ç‰‡Image å­˜å…¥æ•°ç»„
                 gameObjects[j + i * TileColumn] = new TileImageInfo(_x, y, g);
                 g.SetActive(true);
             }
@@ -210,7 +210,7 @@ public class LocationMap : MonoBehaviour
     }
 
     /// <summary>
-    /// ¸üĞÂÍßÆ¬Î»ÖÃ
+    /// æ›´æ–°ç“¦ç‰‡ä½ç½®
     /// </summary>
     /// <param name="direction"></param>
     public void MapUpdate(Direction direction = Direction.up)
@@ -221,12 +221,12 @@ public class LocationMap : MonoBehaviour
         switch (direction)
         {
             case Direction.up:
-                //ÏÂÏòÉÏ¸üĞÂ
+                //ä¸‹å‘ä¸Šæ›´æ–°
                 x = m_centerTileInfo.TileX - (TileColumn - 1) / 2;
                 y = m_centerTileInfo.TileY - (TileRow - 1) / 2 - 1;
                 for (int i = 0; i < TileColumn; i++)
                 {
-                    //°Ñ×îºóÒ»ÅÅ°áµ½µÚÒ»ÅÅ
+                    //æŠŠæœ€åä¸€æ’æ¬åˆ°ç¬¬ä¸€æ’
                     TileImageInfo info = TileMaps[i + TileColumn * (TileRow - 1)];
                     info.Go.transform.localPosition += new Vector3(0, TileWidthAndHeigth * TileRow * TileScale, 0);
                     info.TileX = x;
@@ -234,7 +234,7 @@ public class LocationMap : MonoBehaviour
 
                     StartCoroutine(Location.SetMap(x, y, info.Go.GetComponent<Image>(), TileZoom));
                     x++;
-                    //Ã°Åİ
+                    //å†’æ³¡
                     for (int j = 1; j <= TileRow - 1; j++)
                     {
                         int index1 = i + TileColumn * (TileRow - j);
@@ -251,7 +251,7 @@ public class LocationMap : MonoBehaviour
                 y = m_centerTileInfo.TileY + (TileRow - 1) / 2 + 1;
                 for (int i = 0; i < TileColumn; i++)
                 {
-                    //°ÑµÚÒ»ÅÅ°áµ½×îºóÒ»ÅÅ
+                    //æŠŠç¬¬ä¸€æ’æ¬åˆ°æœ€åä¸€æ’
                     TileImageInfo info = TileMaps[i];
                     info.Go.transform.localPosition -= new Vector3(0, TileWidthAndHeigth * TileRow * TileScale, 0);
                     info.TileX = x;
@@ -259,7 +259,7 @@ public class LocationMap : MonoBehaviour
 
                     StartCoroutine(Location.SetMap(x, y, info.Go.GetComponent<Image>(), TileZoom));
                     x++;
-                    //Ã°Åİ
+                    //å†’æ³¡
                     for (int j = 0; j < TileRow - 1; j++)
                     {
                         int index1 = i + TileColumn * j;
@@ -276,7 +276,7 @@ public class LocationMap : MonoBehaviour
                 y = m_centerTileInfo.TileY - (TileRow - 1) / 2;
                 for (int i = 0; i < TileRow; i++)
                 {
-                    //°Ñ×îÓÒÁĞÒÆµ½×î×óÁĞ
+                    //æŠŠæœ€å³åˆ—ç§»åˆ°æœ€å·¦åˆ—
                     TileImageInfo info = TileMaps[i * TileColumn + (TileColumn - 1)];
                     info.Go.transform.localPosition -= new Vector3(TileWidthAndHeigth * TileColumn * TileScale, 0, 0);
                     info.TileX = x;
@@ -284,7 +284,7 @@ public class LocationMap : MonoBehaviour
 
                     StartCoroutine(Location.SetMap(x, y, info.Go.GetComponent<Image>(), TileZoom));
                     y++;
-                    //Ã°Åİ
+                    //å†’æ³¡
                     for (int j = 1; j <= TileColumn - 1; j++)
                     {
                         int index1 = i * TileColumn + (TileColumn - j);
@@ -301,7 +301,7 @@ public class LocationMap : MonoBehaviour
                 y = m_centerTileInfo.TileY - (TileRow - 1) / 2;
                 for (int i = 0; i < TileRow; i++)
                 {
-                    //°Ñ×î×óÁĞÒÆµ½×îÓÒÁĞ
+                    //æŠŠæœ€å·¦åˆ—ç§»åˆ°æœ€å³åˆ—
                     TileImageInfo info = TileMaps[i * TileColumn];
                     info.Go.transform.localPosition += new Vector3(TileWidthAndHeigth * TileColumn * TileScale, 0, 0);
                     info.TileX = x;
@@ -309,7 +309,7 @@ public class LocationMap : MonoBehaviour
 
                     StartCoroutine(Location.SetMap(x, y, info.Go.GetComponent<Image>(), TileZoom));
                     y++;
-                    //Ã°Åİ
+                    //å†’æ³¡
                     for (int j = 0; j < TileColumn - 1; j++)
                     {
                         int index1 = i * TileColumn + j;
@@ -327,7 +327,7 @@ public class LocationMap : MonoBehaviour
 
     private void OnDestroy()
     {
-        Debug.Log("Ïú»ÙLocationMap");
-        //EventCenter.GetInstance().RemoveEventListener(EventName.LocatedTheFstTime, LocatedTheFstTime);//ÒÆ³ıÊÂ¼ş
+        Debug.Log("é”€æ¯LocationMap");
+        //EventCenter.GetInstance().RemoveEventListener(EventName.LocatedTheFstTime, LocatedTheFstTime);//ç§»é™¤äº‹ä»¶
     }
 }

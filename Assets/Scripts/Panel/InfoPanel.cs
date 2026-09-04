@@ -6,8 +6,8 @@ using UnityEngine.UI;
 
 public class InfoPanel : BasePanel
 {
-    //public GameObject Content;//ScrollViewÖĞµÄContent
-    public GameObject item;//InfoTabÔ¤ÖÆÌå
+    //public GameObject Content;//ScrollViewä¸­çš„Content
+    public GameObject item;//InfoTabé¢„åˆ¶ä½“
     //private Vector2 contentSize;
     //private Vector3 itemLocalPos;
     //private float itemHeight;
@@ -21,19 +21,19 @@ public class InfoPanel : BasePanel
     [SerializeField]
     private Button btnGo;
     [SerializeField]
-    private List<GameObject> scrollViewItems;//¾°µãÁĞ±í
+    private List<GameObject> scrollViewItems;//æ™¯ç‚¹åˆ—è¡¨
 
 #if UNITY_EDITOR
-    public static int desIndex = 1;//Ä¿µÄµØÖ¸Ê¾
+    public static int desIndex = 1;//ç›®çš„åœ°æŒ‡ç¤º
 #else
-    public static int desIndex = -1;//Ä¿µÄµØÖ¸Ê¾
+    public static int desIndex = -1;//ç›®çš„åœ°æŒ‡ç¤º
 #endif
 
     private int tempDesIndex;
 
     protected override void Awake()
     {
-        //ÔÚContentÖĞÌí¼ÓInfoTab
+        //åœ¨Contentä¸­æ·»åŠ InfoTab
         /*contentSize = Content.GetComponent<RectTransform>().sizeDelta;
         itemLocalPos = item.transform.localPosition;
         itemHeight = item.GetComponent<RectTransform>().rect.height;
@@ -64,27 +64,27 @@ public class InfoPanel : BasePanel
         base.OnClick(btnName);
         switch (btnName)
         {
-            case "ºÆÆø³¤´æ":
+            case "æµ©æ°”é•¿å­˜":
                 info.SetActive(true);
                 info.GetComponentInChildren<TextMeshProUGUI>().text = Info.DesIntro(1).ToString();
                 tempDesIndex = 1;
                 break;
-            case "ÆßÊ®¶şÁÒÊ¿Ö®Ä¹":
+            case "ä¸ƒåäºŒçƒˆå£«ä¹‹å¢“":
                 info.SetActive(true);
                 info.GetComponentInChildren<TextMeshProUGUI>().text = Info.DesIntro(2).ToString();
                 tempDesIndex = 2;
                 break;
-            case "µËÖÙÔªÄ¹":
+            case "é‚“ä»²å…ƒå¢“":
                 info.SetActive(true);
                 info.GetComponentInChildren<TextMeshProUGUI>().text = Info.DesIntro(3).ToString();
                 tempDesIndex = 3;
                 break;
-            case "»Æ»¨ÎÄ»¯¹İ":
+            case "é»„èŠ±æ–‡åŒ–é¦†":
                 info.SetActive(true);
                 info.GetComponentInChildren<TextMeshProUGUI>().text = Info.DesIntro(4).ToString();
                 tempDesIndex = 4;
                 break;
-            case "ÁúÖù":
+            case "é¾™æŸ±":
                 info.SetActive(true);
                 info.GetComponentInChildren<TextMeshProUGUI>().text = Info.DesIntro(5).ToString();
                 tempDesIndex = 5;
@@ -93,7 +93,7 @@ public class InfoPanel : BasePanel
     }
 
     /// <summary>
-    /// ·µ»Ø°´Å¥
+    /// è¿”å›æŒ‰é’®
     /// </summary>
     private void OnBack()
     {
@@ -101,7 +101,7 @@ public class InfoPanel : BasePanel
     }
 
     /// <summary>
-    /// Ç°Íù°´Å¥->Â·¾¶¹æ»®
+    /// å‰å¾€æŒ‰é’®->è·¯å¾„è§„åˆ’
     /// </summary>
     private void OnGo()
     {
@@ -109,7 +109,7 @@ public class InfoPanel : BasePanel
         {
             this.TriggerEvent(EventName.ShowNotification, new ShowNotificationArgs
             {
-                message = "ÇëÏÈÑ¡ÔñÒ»¸ö¾°µã¡£",
+                message = "è¯·å…ˆé€‰æ‹©ä¸€ä¸ªæ™¯ç‚¹ã€‚",
                 isBtnOn = false,
                 autoOff = true
             });
@@ -117,29 +117,29 @@ public class InfoPanel : BasePanel
         }
 
         desIndex = tempDesIndex;
-        //ÏÈÍ£Ö¹ÒÑÓĞµÄËùÓĞÂ·¾¶¹æ»®£¬ÔÙ½øĞĞĞÂµÄÂ·¾¶¹æ»®
-        this.TriggerEvent(EventName.EndGuidingDirection);//´¥·¢ÊÂ¼ş
-        this.TriggerEvent(EventName.StartGuidingDirection);//´¥·¢ÊÂ¼ş
+        //å…ˆåœæ­¢å·²æœ‰çš„æ‰€æœ‰è·¯å¾„è§„åˆ’ï¼Œå†è¿›è¡Œæ–°çš„è·¯å¾„è§„åˆ’
+        this.TriggerEvent(EventName.EndGuidingDirection);//è§¦å‘äº‹ä»¶
+        this.TriggerEvent(EventName.StartGuidingDirection);//è§¦å‘äº‹ä»¶
         this.TriggerEvent(EventName.ChangeModeToARGuidingType, new ChangeModeToARGuidingType
         {
             modeType = ModeToAR_Type.StartGuiding
         });
-        /*this.TriggerEvent(EventName.ShowNotification, new ShowNotificationArgs//´¥·¢ShowNotificationÊÂ¼ş
+        /*this.TriggerEvent(EventName.ShowNotification, new ShowNotificationArgs//è§¦å‘ShowNotificationäº‹ä»¶
         {
-            message = "ÒÑµ½´ï\n" + Info.DesInfo(InfoPanel.desIndex),
-            isBtnOn = true,//¿ªÆôÈ·ÈÏ°´Å¥
-            autoOff = false//ĞÅÏ¢¿òÊÖ¶¯¹Ø±Õ
+            message = "å·²åˆ°è¾¾\n" + Info.DesInfo(InfoPanel.desIndex),
+            isBtnOn = true,//å¼€å¯ç¡®è®¤æŒ‰é’®
+            autoOff = false//ä¿¡æ¯æ¡†æ‰‹åŠ¨å…³é—­
         });
-        this.TriggerEvent(EventName.UpdateGuidingInfo, new UpdateGuidingInfoArgs//´¥·¢ÊÂ¼şUpdateGuidingInfo
+        this.TriggerEvent(EventName.UpdateGuidingInfo, new UpdateGuidingInfoArgs//è§¦å‘äº‹ä»¶UpdateGuidingInfo
         {
-            guidingText = "Ïò±±²½ĞĞ1Ã×µ½´ïÄ¿µÄµØ",//»ñÈ¡²½ĞĞÖ¸Ê¾
-            desName = Info.DesInfo(InfoPanel.desIndex),//»ñÈ¡Ä¿µÄµØÃû³Æ
-            disMiles = "1"//»ñÈ¡Ê£Óà¾àÀë
+            guidingText = "å‘åŒ—æ­¥è¡Œ1ç±³åˆ°è¾¾ç›®çš„åœ°",//è·å–æ­¥è¡ŒæŒ‡ç¤º
+            desName = Info.DesInfo(InfoPanel.desIndex),//è·å–ç›®çš„åœ°åç§°
+            disMiles = "1"//è·å–å‰©ä½™è·ç¦»
         });*/
     }
 
     /// <summary>
-    /// ËÑË÷¹¦ÄÜÉ¸Ñ¡item
+    /// æœç´¢åŠŸèƒ½ç­›é€‰item
     /// </summary>
     /// <param name="s"></param>
     private void SearchFilter(string s)
@@ -153,7 +153,7 @@ public class InfoPanel : BasePanel
         }
         foreach(var child in scrollViewItems)
         {
-            if (!child.name.Contains(s))//¾°µãµÄÃû³Æ²»°üº¬ÊäÈëµÄÄÚÈİ
+            if (!child.name.Contains(s))//æ™¯ç‚¹çš„åç§°ä¸åŒ…å«è¾“å…¥çš„å†…å®¹
             {
                 child.SetActive(false);
             }
@@ -165,13 +165,13 @@ public class InfoPanel : BasePanel
     }
 
     /// <summary>
-    /// ÔÚContentÖĞÌí¼ÓInfoTab
+    /// åœ¨Contentä¸­æ·»åŠ InfoTab
     /// </summary>
     /// <param name="index"></param>
     /*private void AddItem(int index)
     {
-        string picName = Info.GetInstance().DesInfo(index);//»ñÈ¡¶ÔÓ¦µÄµØÃû
-        ResMgr.GetInstance().LoadAsync<GameObject>("Prefabs/InfoTab", (IT) =>//Òì²½¼ÓÔØÔ¤ÖÆÌå
+        string picName = Info.GetInstance().DesInfo(index);//è·å–å¯¹åº”çš„åœ°å
+        ResMgr.GetInstance().LoadAsync<GameObject>("Prefabs/InfoTab", (IT) =>//å¼‚æ­¥åŠ è½½é¢„åˆ¶ä½“
         {
             IT.transform.Find("Pic").GetComponent<Image>().sprite = ResMgr.GetInstance().Load<Sprite>("InfoPic/" + picName);
             IT.transform.Find("Place").GetComponent<TextMeshProUGUI>().text = picName.ToString();
@@ -180,7 +180,7 @@ public class InfoPanel : BasePanel
             IT.transform.localPosition = new Vector3(itemLocalPos.x, itemLocalPos.y - 5 * itemHeight, 0);
             //messages.Add(IT);
 
-            if (contentSize.y <= 5 * itemHeight)//³¬³ö·¶Î§£¬Ôö¼ÓContentµÄ¸ß¶È
+            if (contentSize.y <= 5 * itemHeight)//è¶…å‡ºèŒƒå›´ï¼Œå¢åŠ Contentçš„é«˜åº¦
             {
                 Content.GetComponent<RectTransform>().sizeDelta = new Vector2(contentSize.x, 5 * itemHeight + 120);
             }
@@ -193,12 +193,12 @@ public class InfoPanel : BasePanel
         messages.Remove(t);
         Destroy(t);
 
-        for (int i = index; i < messages.Count; i++)//ÒÆ³ıµÄÁĞ±íÏîºóµÄÃ¿Ò»Ïî¶¼ÏòÇ°ÒÆ¶¯
+        for (int i = index; i < messages.Count; i++)//ç§»é™¤çš„åˆ—è¡¨é¡¹åçš„æ¯ä¸€é¡¹éƒ½å‘å‰ç§»åŠ¨
         {
             messages[i].transform.localPosition += new Vector3(0, itemHeight, 0);
         }
 
-        if (contentSize.y <= messages.Count * itemHeight)//µ÷ÕûÄÚÈİµÄ¸ß¶È
+        if (contentSize.y <= messages.Count * itemHeight)//è°ƒæ•´å†…å®¹çš„é«˜åº¦
         {
             Content.GetComponent<RectTransform>().sizeDelta = new Vector2(contentSize.x, messages.Count * itemHeight);
         }

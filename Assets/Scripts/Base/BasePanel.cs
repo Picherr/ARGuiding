@@ -5,17 +5,17 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// Ãæ°å»ùÀà
-/// 1.ÕÒµ½ËùÓĞ×Ô¼ºÃæ°åÏÂµÄ¿Ø¼ş¶ÔÏó
-/// 2.Ó¦¸ÃÌá¹©ÏÔÊ¾»òÒş²ØµÄĞĞÎª
-/// 3.·½±ãÎÒÃÇÔÚ×ÓÀàÖĞ´¦ÀíÂß¼­
-/// 4.½ÚÔ¼ÕÒ¿Ø¼şµÄ¹¤×÷Á¿
+/// é¢æ¿åŸºç±»
+/// 1.æ‰¾åˆ°æ‰€æœ‰è‡ªå·±é¢æ¿ä¸‹çš„æ§ä»¶å¯¹è±¡
+/// 2.åº”è¯¥æä¾›æ˜¾ç¤ºæˆ–éšè—çš„è¡Œä¸º
+/// 3.æ–¹ä¾¿æˆ‘ä»¬åœ¨å­ç±»ä¸­å¤„ç†é€»è¾‘
+/// 4.èŠ‚çº¦æ‰¾æ§ä»¶çš„å·¥ä½œé‡
 /// </summary>
 public class BasePanel : MonoBehaviour
 {
-    //Í¨¹ıÀïÊÏ×ª»»Ô­Ôò´æ´¢ËùÓĞµÄ¿Ø¼ş
-    //¿Ø¼şµÄ»ùÀàÊÇUIBehaviour
-    //Ê¹ÓÃListÊÇÎªÁË´æ´¢Ò»¸ö¶ÔÏóÉÏµÄ²»Í¬¿Ø¼ş
+    //é€šè¿‡é‡Œæ°è½¬æ¢åŸåˆ™å­˜å‚¨æ‰€æœ‰çš„æ§ä»¶
+    //æ§ä»¶çš„åŸºç±»æ˜¯UIBehaviour
+    //ä½¿ç”¨Listæ˜¯ä¸ºäº†å­˜å‚¨ä¸€ä¸ªå¯¹è±¡ä¸Šçš„ä¸åŒæ§ä»¶
     private Dictionary<string, List<UIBehaviour>> controlDic = new Dictionary<string, List<UIBehaviour>>();
 
     protected virtual void Awake()
@@ -40,7 +40,7 @@ public class BasePanel : MonoBehaviour
     }
 
     /// <summary>
-    /// ÏÔÊ¾¸ÃÃæ°å
+    /// æ˜¾ç¤ºè¯¥é¢æ¿
     /// </summary>
     public virtual void Show()
     {
@@ -48,7 +48,7 @@ public class BasePanel : MonoBehaviour
     }
 
     /// <summary>
-    /// Òş²Ø¸ÃÃæ°å
+    /// éšè—è¯¥é¢æ¿
     /// </summary>
     public virtual void Hide()
     {
@@ -79,7 +79,7 @@ public class BasePanel : MonoBehaviour
     }
 
     /// <summary>
-    /// ÕÒµ½×Ó¶ÔÏóµÄ¶ÔÓ¦¿Ø¼ş
+    /// æ‰¾åˆ°å­å¯¹è±¡çš„å¯¹åº”æ§ä»¶
     /// </summary>
     /// <typeparam name="T"></typeparam>
     private void FindChildrenControl<T>() where T : UIBehaviour
@@ -97,7 +97,7 @@ public class BasePanel : MonoBehaviour
                 controlDic.Add(objName, new List<UIBehaviour>() { controls[i] });
             }
 
-            //Èç¹ûÊÇ°´Å¥¿Ø¼ş
+            //å¦‚æœæ˜¯æŒ‰é’®æ§ä»¶
             if (controls[i] is Button)
             {
                 (controls[i] as Button).onClick.AddListener(() =>
@@ -105,7 +105,7 @@ public class BasePanel : MonoBehaviour
                     OnClick(objName);
                 });
             }
-            /*//Èç¹ûÊÇµ¥Ñ¡¿ò»ò¶àÑ¡¿ò
+            /*//å¦‚æœæ˜¯å•é€‰æ¡†æˆ–å¤šé€‰æ¡†
             else if (controls[i] is InputField)
             {
                 (controls[i] as InputField).onValueChanged.AddListener((s) =>

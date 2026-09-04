@@ -12,6 +12,6 @@ public class Singleton<T> where T : new()
         {
             instance = new T();
         }
-        return instance; // 泛型无法直接使用 this
+        return instance; // 娉涘瀷鏃犳硶鐩存帴浣跨敤 this
     }
 }

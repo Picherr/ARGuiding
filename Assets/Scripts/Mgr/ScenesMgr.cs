@@ -4,27 +4,27 @@ using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// ³¡¾°ÇĞ»»Ä£¿é
-/// 1.³¡¾°Òì²½¼ÓÔØ
-/// 2.Ğ­³Ì
-/// 3.Î¯ÍĞ
+/// åœºæ™¯åˆ‡æ¢æ¨¡å—
+/// 1.åœºæ™¯å¼‚æ­¥åŠ è½½
+/// 2.åç¨‹
+/// 3.å§”æ‰˜
 /// </summary>
 public class ScenesMgr : BaseManager<ScenesMgr>
 {
     /// <summary>
-    /// ÇĞ»»³¡¾°-Í¬²½
+    /// åˆ‡æ¢åœºæ™¯-åŒæ­¥
     /// </summary>
     /// <param name="name"></param>
     public void LoadScene(string name, UnityAction fun)
     {
-        //³¡¾°Í¬²½¼ÓÔØ
+        //åœºæ™¯åŒæ­¥åŠ è½½
         SceneManager.LoadScene(name);
-        //¼ÓÔØÍê³É¹ıºó£¬²Å»áÈ¥Ö´ĞĞfun
+        //åŠ è½½å®Œæˆè¿‡åï¼Œæ‰ä¼šå»æ‰§è¡Œfun
         fun();
     }
 
     /// <summary>
-    /// Ìá¹©¸øÍâ²¿µÄÒì²½¼ÓÔØµÄ·½·¨
+    /// æä¾›ç»™å¤–éƒ¨çš„å¼‚æ­¥åŠ è½½çš„æ–¹æ³•
     /// </summary>
     /// <param name="name"></param>
     /// <param name="fun"></param>
@@ -34,7 +34,7 @@ public class ScenesMgr : BaseManager<ScenesMgr>
     }
 
     /// <summary>
-    /// Ğ­³ÌÒì²½¼ÓÔØ³¡¾°
+    /// åç¨‹å¼‚æ­¥åŠ è½½åœºæ™¯
     /// </summary>
     /// <param name="name"></param>
     /// <param name="fun"></param>
@@ -42,15 +42,15 @@ public class ScenesMgr : BaseManager<ScenesMgr>
     private IEnumerator ReallyLoadSceneAsyn(string name, UnityAction fun)
     {
         AsyncOperation ao = SceneManager.LoadSceneAsync(name);
-        //¿ÉÒÔµÃµ½³¡¾°¼ÓÔØµÄÒ»¸ö½ø¶È
+        //å¯ä»¥å¾—åˆ°åœºæ™¯åŠ è½½çš„ä¸€ä¸ªè¿›åº¦
         while (!ao.isDone)
         {
-            //ÊÂ¼şÖĞĞÄÏòÍâ·Ö·¢ÓÎÏ·½ø¶È
-            //EventCenter.GetInstance().EventTrigger("½ø¶ÈÌõ¸üĞÂ", ao.progress);
-            //¸üĞÂ½ø¶ÈÌõ
+            //äº‹ä»¶ä¸­å¿ƒå‘å¤–åˆ†å‘æ¸¸æˆè¿›åº¦
+            //EventCenter.GetInstance().EventTrigger("è¿›åº¦æ¡æ›´æ–°", ao.progress);
+            //æ›´æ–°è¿›åº¦æ¡
             yield return ao.progress;
         }
-        //¼ÓÔØÍê³É¹ıºó£¬²Å»áÖ´ĞĞfun
+        //åŠ è½½å®Œæˆè¿‡åï¼Œæ‰ä¼šæ‰§è¡Œfun
         fun();
     }
 }

@@ -8,7 +8,7 @@ public class MapPanel : BasePanel
 {
     private Image image;
 
-    //public LineRenderer lineRenderInMap;//¶şÎ¬µØÍ¼ÉÏµÄµ¼º½Ïß
+    //public LineRenderer lineRenderInMap;//äºŒç»´åœ°å›¾ä¸Šçš„å¯¼èˆªçº¿
 
     public void OnMap()
     {

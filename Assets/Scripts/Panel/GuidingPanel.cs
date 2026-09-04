@@ -17,7 +17,7 @@ public class GuidingPanel : BasePanel
     protected override void Awake()
     {
         base.Awake();
-        EventCenter.GetInstance().AddEventListener(EventName.UpdateGuidingInfo, UpdateGuidingInfo);//Ìí¼ÓÊÂ¼þ
+        EventCenter.GetInstance().AddEventListener(EventName.UpdateGuidingInfo, UpdateGuidingInfo);//æ·»åŠ äº‹ä»¶
     }
 
     protected override void Start()
@@ -42,6 +42,6 @@ public class GuidingPanel : BasePanel
     protected override void OnDestroy()
     {
         base.OnDestroy();
-        EventCenter.GetInstance().RemoveEventListener(EventName.UpdateGuidingInfo, UpdateGuidingInfo);//ÒÆ³ýÊÂ¼þ
+        EventCenter.GetInstance().RemoveEventListener(EventName.UpdateGuidingInfo, UpdateGuidingInfo);//ç§»é™¤äº‹ä»¶
     }
 }

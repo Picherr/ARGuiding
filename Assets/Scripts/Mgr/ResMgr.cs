@@ -3,33 +3,33 @@ using UnityEngine;
 using UnityEngine.Events;
 
 /// <summary>
-/// ×ÊÔ´¼ÓÔØÄ£¿é
-/// 1.Òì²½¼ÓÔØ
-/// 2.Î¯ÍĞºÍlambda±í´ïÊ½
-/// 3.Ğ­³Ì
-/// 4.·ºĞÍ
+/// èµ„æºåŠ è½½æ¨¡å—
+/// 1.å¼‚æ­¥åŠ è½½
+/// 2.å§”æ‰˜å’Œlambdaè¡¨è¾¾å¼
+/// 3.åç¨‹
+/// 4.æ³›å‹
 /// </summary>
 public class ResMgr : BaseManager<ResMgr>
 {
-    //Í¬²½¼ÓÔØ×ÊÔ´
+    //åŒæ­¥åŠ è½½èµ„æº
     public T Load<T>(string name) where T : Object
     {
         T res = Resources.Load<T>(name);
-        //Èç¹û¶ÔÏóÊÇGameObjectÀàĞÍ£¬ÊµÀı»¯ºóÔÙ·µ»Ø³öÈ¥Íâ²¿Ê¹ÓÃ¼´¿É
+        //å¦‚æœå¯¹è±¡æ˜¯GameObjectç±»å‹ï¼Œå®ä¾‹åŒ–åå†è¿”å›å‡ºå»å¤–éƒ¨ä½¿ç”¨å³å¯
         if (res is GameObject)
             return GameObject.Instantiate(res);
         else//TextAsset AudioClip
             return res;
     }
 
-    //Òì²½¼ÓÔØ×ÊÔ´
+    //å¼‚æ­¥åŠ è½½èµ„æº
     public void LoadAsync<T>(string name, UnityAction<T> callback=null) where T : Object
     {
-        //¿ªÆôÒì²½¼ÓÔØµÄĞ­³Ì
+        //å¼€å¯å¼‚æ­¥åŠ è½½çš„åç¨‹
         MonoMgr.GetInstance().StartCoroutine(ReallyLoadAsync(name, callback));
     }
 
-    //ÕæÕıµÄĞ­Í¬³ÌĞòº¯Êı£¬ÓÃÓÚ¿ªÆôÒì²½¼ÓÔØ¶ÔÓ¦µÄ×ÊÔ´
+    //çœŸæ­£çš„ååŒç¨‹åºå‡½æ•°ï¼Œç”¨äºå¼€å¯å¼‚æ­¥åŠ è½½å¯¹åº”çš„èµ„æº
     private IEnumerator ReallyLoadAsync<T>(string name, UnityAction<T> callback) where T : Object
     {
         ResourceRequest req = Resources.LoadAsync<T>(name);

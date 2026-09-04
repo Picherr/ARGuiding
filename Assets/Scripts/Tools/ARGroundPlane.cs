@@ -12,14 +12,14 @@ public class ARGroundPlane : SingletonAutoMono<ARGroundPlane>
 
     private void Awake()
     {
-        EventCenter.GetInstance().AddEventListener(EventName.AlreadyCreatedModel, RemoveListener);//Ìí¼ÓÊÂ¼ş
+        EventCenter.GetInstance().AddEventListener(EventName.AlreadyCreatedModel, RemoveListener);//æ·»åŠ äº‹ä»¶
     }
 
     public void AddListener()
     {
         if (planeFinder == null)
         {
-            Debug.LogError("Î´ÕÒµ½ Vuforia PlaneFinderBehaviour£¬ÎŞ·¨·ÅÖÃĞéÄâ½²½âÔ±¡£");
+            Debug.LogError("æœªæ‰¾åˆ° Vuforia PlaneFinderBehaviourï¼Œæ— æ³•æ”¾ç½®è™šæ‹Ÿè®²è§£å‘˜ã€‚");
             return;
         }
 
@@ -28,7 +28,7 @@ public class ARGroundPlane : SingletonAutoMono<ARGroundPlane>
             return;
         }
 
-        planeFinder.OnInteractiveHitTest.AddListener(HandleInteractiveHitTest);//Ìí¼Ó¸ÃÊÂ¼ş
+        planeFinder.OnInteractiveHitTest.AddListener(HandleInteractiveHitTest);//æ·»åŠ è¯¥äº‹ä»¶
         isListenerAdded = true;
     }
 
@@ -36,7 +36,7 @@ public class ARGroundPlane : SingletonAutoMono<ARGroundPlane>
     {
         if (planeFinder == null)
         {
-            Debug.LogWarning("Plane Finder ÉĞÎ´³õÊ¼»¯¡£");
+            Debug.LogWarning("Plane Finder å°šæœªåˆå§‹åŒ–ã€‚");
             return;
         }
 
@@ -58,7 +58,7 @@ public class ARGroundPlane : SingletonAutoMono<ARGroundPlane>
         isCreatingModel = true;
         RemoveListener(this, EventArgs.Empty);
 
-        //Òì²½¼ÓÔØ´´½¨ĞéÄâµ¼ÓÎ
+        //å¼‚æ­¥åŠ è½½åˆ›å»ºè™šæ‹Ÿå¯¼æ¸¸
         ResMgr.GetInstance().LoadAsync<GameObject>("Prefabs/XiaoMing", (obj) =>
         {
             if (obj == null || planeFinder == null || !planeFinder.gameObject.activeInHierarchy)
@@ -74,16 +74,16 @@ public class ARGroundPlane : SingletonAutoMono<ARGroundPlane>
             GameObject groundPlaneStage = GameObject.Find("Ground Plane Stage");
             if (groundPlaneStage == null)
             {
-                Debug.LogError("Î´ÕÒµ½ Ground Plane Stage£¬ÎŞ·¨·ÅÖÃĞéÄâ½²½âÔ±¡£");
+                Debug.LogError("æœªæ‰¾åˆ° Ground Plane Stageï¼Œæ— æ³•æ”¾ç½®è™šæ‹Ÿè®²è§£å‘˜ã€‚");
                 Destroy(obj);
                 isCreatingModel = false;
                 return;
             }
 
-            Debug.Log("´´½¨Ğ¡Ã÷");
+            Debug.Log("åˆ›å»ºå°æ˜");
             obj.transform.position = result.Position;
             obj.transform.rotation = Quaternion.identity;
-            obj.transform.SetParent(groundPlaneStage.transform);//¹ÒÔØ
+            obj.transform.SetParent(groundPlaneStage.transform);//æŒ‚è½½
             this.TriggerEvent(EventName.AlreadyCreatedModel);
         });
     }
@@ -95,13 +95,13 @@ public class ARGroundPlane : SingletonAutoMono<ARGroundPlane>
             return;
         }
 
-        planeFinder.OnInteractiveHitTest.RemoveListener(HandleInteractiveHitTest);//ÒÆ³ı¸ÃÊÂ¼ş
+        planeFinder.OnInteractiveHitTest.RemoveListener(HandleInteractiveHitTest);//ç§»é™¤è¯¥äº‹ä»¶
         isListenerAdded = false;
     }
 
     private void OnDestroy()
     {
         RemoveListener(this, EventArgs.Empty);
-        EventCenter.GetInstance().RemoveEventListener(EventName.AlreadyCreatedModel, RemoveListener);//ÒÆ³ıÊÂ¼ş
+        EventCenter.GetInstance().RemoveEventListener(EventName.AlreadyCreatedModel, RemoveListener);//ç§»é™¤äº‹ä»¶
     }
 }

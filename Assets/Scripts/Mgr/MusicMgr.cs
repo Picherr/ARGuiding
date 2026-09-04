@@ -30,7 +30,7 @@ public class MusicMgr : BaseManager<MusicMgr>
     }
 
     /// <summary>
-    /// ²¥·Å±³¾°ÒôÀÖ
+    /// æ’­æ”¾èƒŒæ™¯éŸ³ä¹
     /// </summary>
     /// <param name="name"></param>
     public void PlayBKMusic(string name)
@@ -41,7 +41,7 @@ public class MusicMgr : BaseManager<MusicMgr>
             obj.name = "BkMusic";
             bkMusic = obj.AddComponent<AudioSource>();
         }
-        //Òì²½¼ÓÔØ±³¾°ÒôÀÖ£¬¼ÓÔØÍê³Éºó²¥·Å
+        //å¼‚æ­¥åŠ è½½èƒŒæ™¯éŸ³ä¹ï¼ŒåŠ è½½å®Œæˆåæ’­æ”¾
         ResMgr.GetInstance().LoadAsync<AudioClip>("Music/BK/" + name, (clip) =>
         {
             bkMusic.clip = clip;
@@ -52,7 +52,7 @@ public class MusicMgr : BaseManager<MusicMgr>
     }
 
     /// <summary>
-    /// ÔİÍ£±³¾°ÒôÀÖ
+    /// æš‚åœèƒŒæ™¯éŸ³ä¹
     /// </summary>
     public void PauseBKMusic()
     {
@@ -61,7 +61,7 @@ public class MusicMgr : BaseManager<MusicMgr>
     }
 
     /// <summary>
-    /// ¸Ä±ä±³¾°ÒôÀÖÒôÁ¿´óĞ¡
+    /// æ”¹å˜èƒŒæ™¯éŸ³ä¹éŸ³é‡å¤§å°
     /// </summary>
     /// <param name="v"></param>
     public void ChangeBKValue(float v)
@@ -72,7 +72,7 @@ public class MusicMgr : BaseManager<MusicMgr>
     }
 
     /// <summary>
-    /// Í£Ö¹±³¾°ÒôÀÖ
+    /// åœæ­¢èƒŒæ™¯éŸ³ä¹
     /// </summary>
     public void StopBKMusic()
     {
@@ -81,7 +81,7 @@ public class MusicMgr : BaseManager<MusicMgr>
     }
 
     /// <summary>
-    /// ²¥·ÅÒôĞ§
+    /// æ’­æ”¾éŸ³æ•ˆ
     /// </summary>
     /// <param name="name"></param>
     public void PlaySound(string name, bool isLoop, UnityAction<AudioSource> callback)
@@ -92,7 +92,7 @@ public class MusicMgr : BaseManager<MusicMgr>
             soundObj.name = "Sound";
         }
 
-        //µ±ÒôĞ§×ÊÔ´Òì²½¼ÓÔØ½áÊøºó£¬ÔÙÌí¼ÓÒ»¸öÒôĞ§
+        //å½“éŸ³æ•ˆèµ„æºå¼‚æ­¥åŠ è½½ç»“æŸåï¼Œå†æ·»åŠ ä¸€ä¸ªéŸ³æ•ˆ
         ResMgr.GetInstance().LoadAsync<AudioClip>("Sound/" + name, (clip) =>
         {
             AudioSource source = soundObj.AddComponent<AudioSource>();
@@ -109,7 +109,7 @@ public class MusicMgr : BaseManager<MusicMgr>
     }
 
     /// <summary>
-    /// ¸Ä±äÒôĞ§ÒôÁ¿´óĞ¡
+    /// æ”¹å˜éŸ³æ•ˆéŸ³é‡å¤§å°
     /// </summary>
     /// <param name="v"></param>
     public void ChangeSoundValue(float v)
@@ -122,7 +122,7 @@ public class MusicMgr : BaseManager<MusicMgr>
     }
 
     /// <summary>
-    /// Í£Ö¹ÒôĞ§
+    /// åœæ­¢éŸ³æ•ˆ
     /// </summary>
     public void StopSound(AudioSource source)
     {

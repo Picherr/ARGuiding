@@ -6,7 +6,7 @@ using UnityEngine;
 public class Gyro : MonoBehaviour
 {
 
-    private const float lowPassFilterFactor = 0.8f;//slerp»º³å
+    private const float lowPassFilterFactor = 0.8f;//slerpç¼“å†²
 
     private Quaternion startQuaternion;
 
@@ -17,17 +17,17 @@ public class Gyro : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //ÉèÖÃÉè±¸ÍÓÂİÒÇµÄ¿ªÆô/¹Ø±Õ×´Ì¬£¬Ê¹ÓÃÍÓÂİÒÇ¹¦ÄÜ±ØĞëÉèÖÃÎª true
+        //è®¾ç½®è®¾å¤‡é™€èºä»ªçš„å¼€å¯/å…³é—­çŠ¶æ€ï¼Œä½¿ç”¨é™€èºä»ªåŠŸèƒ½å¿…é¡»è®¾ç½®ä¸º true
         Input.gyro.enabled = true;
-        //»ñÈ¡Éè±¸ÖØÁ¦¼ÓËÙ¶ÈÏòÁ¿
+        //è·å–è®¾å¤‡é‡åŠ›åŠ é€Ÿåº¦å‘é‡
         Vector3 deviceGravity = Input.gyro.gravity;
-        //Éè±¸µÄĞı×ªËÙ¶È£¬·µ»Ø½á¹ûÎªx,y,zÖáµÄĞı×ªËÙ¶È£¬µ¥Î»Îª£¨»¡¶È/Ãë£©
+        //è®¾å¤‡çš„æ—‹è½¬é€Ÿåº¦ï¼Œè¿”å›ç»“æœä¸ºx,y,zè½´çš„æ—‹è½¬é€Ÿåº¦ï¼Œå•ä½ä¸ºï¼ˆå¼§åº¦/ç§’ï¼‰
         Vector3 rotationVelocity = Input.gyro.rotationRate;
-        //»ñÈ¡¸ü¼Ó¾«È·µÄĞı×ª
+        //è·å–æ›´åŠ ç²¾ç¡®çš„æ—‹è½¬
         Vector3 rotationVelocity2 = Input.gyro.rotationRateUnbiased;
-        //ÉèÖÃÍÓÂİÒÇµÄ¸üĞÂ¼ìË÷Ê±¼ä£¬¼´¸ô0.1Ãë¸üĞÂÒ»´Î
+        //è®¾ç½®é™€èºä»ªçš„æ›´æ–°æ£€ç´¢æ—¶é—´ï¼Œå³éš”0.1ç§’æ›´æ–°ä¸€æ¬¡
         Input.gyro.updateInterval = 0.1f;
-        //»ñÈ¡ÒÆ³ıÖØÁ¦¼ÓËÙ¶ÈºóÉè±¸µÄ¼ÓËÙ¶È
+        //è·å–ç§»é™¤é‡åŠ›åŠ é€Ÿåº¦åè®¾å¤‡çš„åŠ é€Ÿåº¦
         Vector3 acceleration = Input.gyro.userAcceleration;
     }
 

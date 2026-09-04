@@ -11,11 +11,11 @@ public class SingletonAutoMono<T> : MonoBehaviour where T : MonoBehaviour
         if (instance == null)
         {
             GameObject obj = new GameObject();
-            //ÉèÖÃ¶ÔÏóµÄÃû×ÖÎª½Å±¾Ãû
+            //è®¾ç½®å¯¹è±¡çš„åå­—ä¸ºè„šæœ¬å
             obj.name = typeof(T).ToString();
 
-            //ÈÃÕâ¸öµ¥Àı¶ÔÏó¹ı³¡¾°µÄÊ±ºò²»ÒÆ³ı
-            //ÒòÎªµ¥Àı¶ÔÏóÍùÍùÊÇ´æÔÚÓÚÕû¸ö³ÌĞòÉúÃüÖÜÆÚÖĞµÄ
+            //è®©è¿™ä¸ªå•ä¾‹å¯¹è±¡è¿‡åœºæ™¯çš„æ—¶å€™ä¸ç§»é™¤
+            //å› ä¸ºå•ä¾‹å¯¹è±¡å¾€å¾€æ˜¯å­˜åœ¨äºæ•´ä¸ªç¨‹åºç”Ÿå‘½å‘¨æœŸä¸­çš„
             DontDestroyOnLoad(obj);
             instance = obj.AddComponent<T>();
         }

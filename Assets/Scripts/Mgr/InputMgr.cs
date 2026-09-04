@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// ÊäÈë¿ØÖÆÄ£¿é
-/// 1.InputÀà
-/// 2.ÊÂ¼şÖĞĞÄÄ£¿é
-/// 3.¹«¹²MonoÄ£¿éµÄÊ¹ÓÃ
+/// è¾“å…¥æ§åˆ¶æ¨¡å—
+/// 1.Inputç±»
+/// 2.äº‹ä»¶ä¸­å¿ƒæ¨¡å—
+/// 3.å…¬å…±Monoæ¨¡å—çš„ä½¿ç”¨
 /// </summary>
 public class InputMgr : BaseManager<InputMgr>
 {
@@ -14,7 +14,7 @@ public class InputMgr : BaseManager<InputMgr>
     public bool isModelSet = false;
 
     /// <summary>
-    /// ¹¹Ôìº¯ÊıÖĞÌí¼ÓUpdate¼àÌı
+    /// æ„é€ å‡½æ•°ä¸­æ·»åŠ Updateç›‘å¬
     /// </summary>
     public InputMgr()
     {
@@ -27,37 +27,37 @@ public class InputMgr : BaseManager<InputMgr>
     }
 
     /// <summary>
-    /// ÓÃÀ´¼ì²â°´¼üÌ§Æğ°´ÏÂ·Ö·¢ÊÂ¼şµÄ
+    /// ç”¨æ¥æ£€æµ‹æŒ‰é”®æŠ¬èµ·æŒ‰ä¸‹åˆ†å‘äº‹ä»¶çš„
     /// </summary>
     /// <param name="key"></param>
     private void CheckKeyCode(KeyCode key)
     {
         /*if (Input.GetKeyDown(key))
         {
-            EventCenter.GetInstance().EventTrigger("Ä³¼ü°´ÏÂ",key);
+            EventCenter.GetInstance().EventTrigger("æŸé”®æŒ‰ä¸‹",key);
         }
         if (Input.GetKeyUp(key))
         {
-            EventCenter.GetInstance().EventTrigger("Ä³¼üÌ§Æğ", key);
+            EventCenter.GetInstance().EventTrigger("æŸé”®æŠ¬èµ·", key);
         }*/
     }
 
     private void InputUpdate()
     {
-        //Ã»ÓĞ¿ªÆôÊäÈë¼ì²â¾Í²»¼ì²â£¬Ö±½Óreturn
+        //æ²¡æœ‰å¼€å¯è¾“å…¥æ£€æµ‹å°±ä¸æ£€æµ‹ï¼Œç›´æ¥return
         if (!isStart)
             return;
         //CheckKeyCode(KeyCode.W);
 
-        if (isStart && !isModelSet)//µ±¼ì²â¿ªÆô²¢ÇÒÄ£ĞÍÎ´´´½¨Ê±£¬²ÅÄÜµã»÷´´½¨
+        if (isStart && !isModelSet)//å½“æ£€æµ‹å¼€å¯å¹¶ä¸”æ¨¡å‹æœªåˆ›å»ºæ—¶ï¼Œæ‰èƒ½ç‚¹å‡»åˆ›å»º
         {
-            //¼ì²éÓÃ»§ÊÇ·ñ´¥ÃşÆÁÄ»
+            //æ£€æŸ¥ç”¨æˆ·æ˜¯å¦è§¦æ‘¸å±å¹•
             if (Input.touchCount == 1 && Input.GetTouch(0).phase == TouchPhase.Began)
             {
-                //»ñÈ¡´¥ÃşÎ»ÖÃ
+                //è·å–è§¦æ‘¸ä½ç½®
                 Touch touch = Input.GetTouch(0);
 
-                //Ö´ĞĞµØÃæ¼ì²â
+                //æ‰§è¡Œåœ°é¢æ£€æµ‹
                 //ARGroundPlane.GetInstance().Perform(touch.position);
             }
         }

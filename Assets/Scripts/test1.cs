@@ -37,7 +37,7 @@ public class test1 : MonoBehaviour
 
     private void Update()
     {
-        if (videoPlayer.frame==(long)(videoPlayer.frameCount-1))//´ËÊ±Î´²¥·Åµ«ÊÇÒÑ¾­¿ªÊ¼²¥·Å£¬¼´½áÊø
+        if (videoPlayer.frame==(long)(videoPlayer.frameCount-1))//æ­¤æ—¶æœªæ’­æ”¾ä½†æ˜¯å·²ç»å¼€å§‹æ’­æ”¾ï¼Œå³ç»“æŸ
         {
             Debug.Log("isPlaying");
             btnAgain.SetActive(true);
