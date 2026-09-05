@@ -70,6 +70,8 @@ public class LocationMap : MonoBehaviour
     //中心 瓦片信息类
     private TileInfo m_centerTileInfo = null;
     private LatLng currentMapCenter;
+    private RectTransform overlayRoot;
+    private RectTransform currentLocationMarker;
 
     //最好是正方形，容易计算，目前没处理 非正方形
     //瓦片行数
@@ -81,7 +83,7 @@ public class LocationMap : MonoBehaviour
     {
         Debug.Log("生成LocationMap");
         TileScale = TileMap.transform.localScale.x;
-        //EventCenter.GetInstance().AddEventListener(EventName.LocatedTheFstTime, LocatedTheFstTime);//添加LocatedTheFstTime事件，当应用刚打开时初始化瓦片地图，之后不再更新
+        EventCenter.GetInstance().AddEventListener(EventName.LocationUpdated, OnLocationUpdated);
     }
 
     private void Start()
@@ -92,11 +94,22 @@ public class LocationMap : MonoBehaviour
 #endif
     }
 
-    private void LocatedTheFstTime(object sender, EventArgs e)
+    private void OnLocationUpdated(object sender, EventArgs e)
     {
-        Debug.Log("进入LocatedTheFstTime");
-        StartCoroutine(InitTileInfo());
-        Debug.Log("完成LocatedTheFstTime");
+        LocationUpdatedEventArgs data = e as LocationUpdatedEventArgs;
+        if (data == null || data.location == null)
+        {
+            return;
+        }
+
+        if (data.recenterRequested)
+        {
+            RebuildMap(data.location, true);
+        }
+        else
+        {
+            UpdateMapOverlay();
+        }
     }
 
     private IEnumerator InitTileInfo()
@@ -126,18 +139,23 @@ public class LocationMap : MonoBehaviour
 
         if (api.HasValidLocation && Location.mLatLng != null)
         {
-            RebuildMap(Location.mLatLng);
+            RebuildMap(Location.mLatLng, true);
         }
     }
 
-    private void RebuildMap(LatLng center)
+    public void RecenterOnCurrentLocation()
+    {
+        RebuildMap(Location.mLatLng ?? NavigationDefaults.CreateParkCenter(), true);
+    }
+
+    private void RebuildMap(LatLng center, bool force = false)
     {
         if (center == null)
         {
             return;
         }
 
-        if (currentMapCenter != null &&
+        if (!force && currentMapCenter != null &&
             Math.Abs(currentMapCenter.Longitude - center.Longitude) < 0.000001d &&
             Math.Abs(currentMapCenter.Latitude - center.Latitude) < 0.000001d)
         {
@@ -207,6 +225,99 @@ public class LocationMap : MonoBehaviour
             sour -= new Vector3(0, TileWidthAndHeigth * TileScale, 0);
         }
         TileMaps.AddRange(gameObjects);
+        UpdateMapOverlay();
+    }
+
+    private void UpdateMapOverlay()
+    {
+        if (currentMapCenter == null)
+        {
+            return;
+        }
+
+        EnsureOverlayRoot();
+
+        LatLng currentLocation = Location.mLatLng ?? currentMapCenter;
+        currentLocationMarker.anchoredPosition =
+            Location.LatLngToMapPixelOffset(currentLocation, currentMapCenter, TileZoom) * TileScale;
+        Image currentImage = currentLocationMarker.GetComponent<Image>();
+        currentImage.color = GaoDeAPI.GetInstance().HasValidLocation
+            ? new Color(0.05f, 0.45f, 1f, 1f)
+            : new Color(0.42f, 0.48f, 0.55f, 1f);
+
+        for (int i = 1; i <= 5; i++)
+        {
+            string markerName = "ParkMarker" + i;
+            RectTransform marker = overlayRoot.Find(markerName) as RectTransform;
+            if (marker == null)
+            {
+                marker = CreateMarker(markerName, new Color(0.95f, 0.34f, 0.10f, 1f), 48f, i.ToString());
+            }
+
+            Vector2 coordinate = Info.DesCoord(i);
+            LatLng point = new LatLng(coordinate.x, coordinate.y);
+            marker.anchoredPosition = Location.LatLngToMapPixelOffset(point, currentMapCenter, TileZoom) * TileScale;
+        }
+
+        overlayRoot.SetAsLastSibling();
+    }
+
+    private void EnsureOverlayRoot()
+    {
+        if (overlayRoot != null)
+        {
+            return;
+        }
+
+        GameObject overlayObject = new GameObject("MapOverlay", typeof(RectTransform));
+        overlayRoot = overlayObject.GetComponent<RectTransform>();
+        overlayRoot.SetParent(transform, false);
+        overlayRoot.anchorMin = new Vector2(0.5f, 0.5f);
+        overlayRoot.anchorMax = new Vector2(0.5f, 0.5f);
+        overlayRoot.pivot = new Vector2(0.5f, 0.5f);
+        overlayRoot.anchoredPosition = Vector2.zero;
+        overlayRoot.sizeDelta = Vector2.zero;
+
+        currentLocationMarker = CreateMarker("CurrentLocationMarker", new Color(0.05f, 0.45f, 1f, 1f),
+            42f, "GPS");
+    }
+
+    private RectTransform CreateMarker(string markerName, Color color, float size, string labelText)
+    {
+        GameObject markerObject = new GameObject(markerName, typeof(RectTransform), typeof(CanvasRenderer),
+            typeof(Image), typeof(Outline));
+        RectTransform marker = markerObject.GetComponent<RectTransform>();
+        marker.SetParent(overlayRoot, false);
+        marker.anchorMin = new Vector2(0.5f, 0.5f);
+        marker.anchorMax = new Vector2(0.5f, 0.5f);
+        marker.pivot = new Vector2(0.5f, 0.5f);
+        marker.sizeDelta = new Vector2(size, size);
+
+        Image image = markerObject.GetComponent<Image>();
+        image.color = color;
+        image.raycastTarget = false;
+
+        Outline outline = markerObject.GetComponent<Outline>();
+        outline.effectColor = Color.white;
+        outline.effectDistance = new Vector2(3f, -3f);
+
+        GameObject labelObject = new GameObject("Label", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
+        RectTransform labelRect = labelObject.GetComponent<RectTransform>();
+        labelRect.SetParent(marker, false);
+        labelRect.anchorMin = Vector2.zero;
+        labelRect.anchorMax = Vector2.one;
+        labelRect.offsetMin = Vector2.zero;
+        labelRect.offsetMax = Vector2.zero;
+
+        Text label = labelObject.GetComponent<Text>();
+        label.text = labelText;
+        label.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+        label.fontSize = labelText == "GPS" ? 12 : 24;
+        label.fontStyle = FontStyle.Bold;
+        label.alignment = TextAnchor.MiddleCenter;
+        label.color = Color.white;
+        label.raycastTarget = false;
+        return marker;
     }
 
     /// <summary>
@@ -328,6 +439,6 @@ public class LocationMap : MonoBehaviour
     private void OnDestroy()
     {
         Debug.Log("销毁LocationMap");
-        //EventCenter.GetInstance().RemoveEventListener(EventName.LocatedTheFstTime, LocatedTheFstTime);//移除事件
+        EventCenter.GetInstance().RemoveEventListener(EventName.LocationUpdated, OnLocationUpdated);
     }
 }

@@ -1,38 +1,200 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class Location
 {
+    private const int MaxCachedTiles = 128;
+    private static readonly Dictionary<string, Sprite> TileCache = new Dictionary<string, Sprite>();
+    private static readonly Dictionary<string, LinkedListNode<string>> TileCacheNodes =
+        new Dictionary<string, LinkedListNode<string>>();
+    private static readonly LinkedList<string> TileCacheLru = new LinkedList<string>();
+    private static readonly Dictionary<int, string> ActiveTileRequests = new Dictionary<int, string>();
+    private static readonly Dictionary<int, string> DisplayedTileKeys = new Dictionary<int, string>();
+    private static readonly HashSet<string> LoggedTileFailures = new HashSet<string>();
+    private static readonly Color TileLoadingColor = new Color(0.91f, 0.93f, 0.94f, 1f);
+    private static readonly Color TileFailureColor = new Color(0.82f, 0.85f, 0.87f, 1f);
+
     // GPS/高德定位完成前使用的园区兜底中心点。
     public static LatLng mLatLng = NavigationDefaults.CreateParkCenter();
 
-    public static IEnumerator SetMap(int x, int y, Image image, int zoom)
+    public static IEnumerator SetMap(int x, int y, Image image, int zoom, Action<bool> onComplete = null)
     {
+        if (image == null)
+        {
+            if (onComplete != null)
+            {
+                onComplete(false);
+            }
+            yield break;
+        }
+
+        string tileKey = zoom + "/" + x + "/" + y;
+        int imageId = image.GetInstanceID();
+        ActiveTileRequests[imageId] = tileKey;
+
+        Sprite cachedSprite;
+        if (TryGetCachedTile(tileKey, out cachedSprite))
+        {
+            ActiveTileRequests.Remove(imageId);
+            ApplyTile(image, tileKey, cachedSprite);
+            if (onComplete != null)
+            {
+                onComplete(true);
+            }
+            yield break;
+        }
+
+        // 清除复用 Image 上的旧瓦片，避免网络较慢时短暂显示错误区域。
+        DisplayedTileKeys.Remove(imageId);
+        image.sprite = null;
+        image.color = TileLoadingColor;
+
         string path = string.Format(
             "https://webrd01.is.autonavi.com/appmaptile?x={0}&y={1}&z={2}&lang=zh_cn&size=1&scale=1&style=8",
             x, y, zoom);
 
-        using (UnityWebRequest webRequest = UnityWebRequestTexture.GetTexture(path))
+        using (UnityWebRequest webRequest = UnityWebRequestTexture.GetTexture(path, true))
         {
             webRequest.timeout = 15;
             yield return webRequest.SendWebRequest();
+
+            string activeKey;
+            if (!ActiveTileRequests.TryGetValue(imageId, out activeKey) || activeKey != tileKey)
+            {
+                if (onComplete != null)
+                {
+                    onComplete(false);
+                }
+                yield break;
+            }
+
+            ActiveTileRequests.Remove(imageId);
+            if (image == null)
+            {
+                if (onComplete != null)
+                {
+                    onComplete(false);
+                }
+                yield break;
+            }
+
             if (webRequest.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogWarning("地图瓦片加载失败：" + webRequest.responseCode + " " + webRequest.error);
+                image.sprite = null;
+                image.color = TileFailureColor;
+                if (LoggedTileFailures.Add(tileKey))
+                {
+                    Debug.LogWarning("地图瓦片加载失败：" + webRequest.responseCode + " " + webRequest.error);
+                }
+                if (onComplete != null)
+                {
+                    onComplete(false);
+                }
                 yield break;
             }
 
             Texture2D texture = DownloadHandlerTexture.GetContent(webRequest);
             if (texture == null || image == null)
             {
+                if (onComplete != null)
+                {
+                    onComplete(false);
+                }
                 yield break;
             }
 
-            image.sprite = Sprite.Create(texture,
+            Sprite sprite = Sprite.Create(texture,
                 new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+            CacheTile(tileKey, sprite);
+            ApplyTile(image, tileKey, sprite);
+            if (onComplete != null)
+            {
+                onComplete(true);
+            }
+        }
+    }
+
+    private static void ApplyTile(Image image, string tileKey, Sprite sprite)
+    {
+        if (image == null)
+        {
+            return;
+        }
+
+        image.sprite = sprite;
+        DisplayedTileKeys[image.GetInstanceID()] = tileKey;
+        image.color = Color.white;
+        image.canvasRenderer.SetAlpha(0f);
+        image.CrossFadeAlpha(1f, 0.12f, true);
+    }
+
+    private static bool TryGetCachedTile(string tileKey, out Sprite sprite)
+    {
+        if (!TileCache.TryGetValue(tileKey, out sprite) || sprite == null)
+        {
+            return false;
+        }
+
+        LinkedListNode<string> node;
+        if (TileCacheNodes.TryGetValue(tileKey, out node))
+        {
+            TileCacheLru.Remove(node);
+            TileCacheLru.AddLast(node);
+        }
+        return true;
+    }
+
+    private static void CacheTile(string tileKey, Sprite sprite)
+    {
+        if (sprite == null || TileCache.ContainsKey(tileKey))
+        {
+            return;
+        }
+
+        TileCache[tileKey] = sprite;
+        LinkedListNode<string> node = TileCacheLru.AddLast(tileKey);
+        TileCacheNodes[tileKey] = node;
+
+        TrimTileCache();
+    }
+
+    private static void TrimTileCache()
+    {
+        if (TileCache.Count <= MaxCachedTiles)
+        {
+            return;
+        }
+
+        HashSet<string> displayedTiles = new HashSet<string>(DisplayedTileKeys.Values);
+        LinkedListNode<string> candidate = TileCacheLru.First;
+        while (TileCache.Count > MaxCachedTiles && candidate != null)
+        {
+            LinkedListNode<string> next = candidate.Next;
+            string tileKey = candidate.Value;
+            if (!displayedTiles.Contains(tileKey))
+            {
+                Sprite sprite;
+                TileCache.TryGetValue(tileKey, out sprite);
+                TileCacheLru.Remove(candidate);
+                TileCacheNodes.Remove(tileKey);
+                TileCache.Remove(tileKey);
+
+                if (sprite != null)
+                {
+                    Texture2D texture = sprite.texture;
+                    UnityEngine.Object.Destroy(sprite);
+                    if (texture != null)
+                    {
+                        UnityEngine.Object.Destroy(texture);
+                    }
+                }
+            }
+
+            candidate = next;
         }
     }
 
@@ -136,6 +298,29 @@ public class Location
         float PixelX = (float)x;
         float PixelY = (float)y;
         return new PixelXY(PixelX, PixelY);
+    }
+
+    /// <summary>
+    /// 计算某经纬度相对地图中心点的 UI 像素偏移。
+    /// </summary>
+    public static Vector2 LatLngToMapPixelOffset(LatLng point, LatLng center, int zoom)
+    {
+        if (point == null || center == null)
+        {
+            return Vector2.zero;
+        }
+
+        double mapSize = LocationMap.TileWidthAndHeigth * Math.Pow(2, zoom);
+        double pointX = (point.Longitude + 180d) / 360d * mapSize;
+        double centerX = (center.Longitude + 180d) / 360d * mapSize;
+        double pointLatitudeRadians = point.Latitude * Math.PI / 180d;
+        double centerLatitudeRadians = center.Latitude * Math.PI / 180d;
+        double pointY = (1d - Math.Log(Math.Tan(pointLatitudeRadians) + 1d / Math.Cos(pointLatitudeRadians)) /
+            Math.PI) / 2d * mapSize;
+        double centerY = (1d - Math.Log(Math.Tan(centerLatitudeRadians) + 1d / Math.Cos(centerLatitudeRadians)) /
+            Math.PI) / 2d * mapSize;
+
+        return new Vector2((float)(pointX - centerX), (float)(centerY - pointY));
     }
 
     /// <summary>

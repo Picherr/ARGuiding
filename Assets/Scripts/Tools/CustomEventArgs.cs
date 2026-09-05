@@ -16,7 +16,8 @@ public enum EventName
     HaveArrivedDestination,//到达目的地
     ChangeModeTo2DGuiding,//转换回2D平面导航模式
     VideoIntroduction,//打开介绍视频
-    ChangeModeToARGuidingType//切换转换到AR导航模式时的状态
+    ChangeModeToARGuidingType,//切换转换到AR导航模式时的状态
+    LocationUpdated//定位坐标已更新
 }
 
 public class ShowNotificationArgs : EventArgs
@@ -42,4 +43,10 @@ public class HaveArrivedDestinationArgs : EventArgs
 public class ChangeModeToARGuidingType : EventArgs
 {
     public ModeToAR_Type modeType;
+}
+
+public class LocationUpdatedEventArgs : EventArgs
+{
+    public LatLng location;
+    public bool recenterRequested;
 }

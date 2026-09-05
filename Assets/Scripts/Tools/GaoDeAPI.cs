@@ -587,6 +587,12 @@ public class GaoDeAPI : SingletonAutoMono<GaoDeAPI>
         Location.mLatLng = convertedLocation;
         hasValidLocation = true;
 
+        this.TriggerEvent(EventName.LocationUpdated, new LocationUpdatedEventArgs
+        {
+            location = convertedLocation,
+            recenterRequested = isLocating
+        });
+
         if (isLocating)
         {
             ShowMessage("已定位！\nGPS经度：" + longitude + "\nGPS纬度：" + latitude +
