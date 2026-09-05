@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// Loads credentials from Assets/Resources/ARGuidingSecrets.json.
+/// Loads credentials from Assets/ARGuiding/Resources/ARGuidingSecrets.json.
 /// The concrete secrets file is intentionally ignored by Git.
 /// </summary>
 public static class AppSecrets
