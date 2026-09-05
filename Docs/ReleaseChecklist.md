@@ -5,7 +5,7 @@
 ## 凭据
 
 - 在高德控制台轮换已经进入 Git 历史的 Key，并限制接口、应用和调用额度。
-- 根据 `Config/ARGuidingSecrets.example.json` 创建本地 `Assets/Resources/ARGuidingSecrets.json`。
+- 根据 `Config/ARGuidingSecrets.example.json` 创建本地 `Assets/ARGuiding/Resources/ARGuidingSecrets.json`。
 - 在 Vuforia 控制台轮换历史 License，并确认新 License 的应用限制。
 - 不要提交高德配置、keystore、JKS、口令或完整服务响应。
 
@@ -27,7 +27,7 @@ Tools > ARGuiding > Validate Release Readiness
 
 非 Development Android 构建也会自动执行相同检查。存在以下问题时将阻止构建：
 
-- Build Settings 没有且仅有 `Assets/Scenes/Main_Scene.unity`。
+- Build Settings 没有且仅有 `Assets/ARGuiding/Scenes/Main_Scene.unity`。
 - 包名或版本名称仍为原型默认值。
 - 未配置正式签名。
 - 缺少本地高德 Key 或 Vuforia 配置。

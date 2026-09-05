@@ -13,6 +13,8 @@
 # Local runtime credentials. Copy from Config/ARGuidingSecrets.example.json.
 /Assets/Resources/ARGuidingSecrets.json
 /Assets/Resources/ARGuidingSecrets.json.meta
+/Assets/ARGuiding/Resources/ARGuidingSecrets.json
+/Assets/ARGuiding/Resources/ARGuidingSecrets.json.meta
 
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data

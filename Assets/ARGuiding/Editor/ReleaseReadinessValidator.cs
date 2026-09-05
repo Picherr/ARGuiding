@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class ReleaseReadinessValidator : IPreprocessBuildWithReport
 {
-    private const string MainScenePath = "Assets/Scenes/Main_Scene.unity";
+    private const string MainScenePath = "Assets/ARGuiding/Scenes/Main_Scene.unity";
     private const string DefaultApplicationIdentifier = "com.DefaultCompany.ARGuiding";
 
     public int callbackOrder

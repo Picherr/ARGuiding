@@ -3,7 +3,7 @@
 将 `ARGuidingSecrets.example.json` 复制为：
 
 ```text
-Assets/Resources/ARGuidingSecrets.json
+Assets/ARGuiding/Resources/ARGuidingSecrets.json
 ```
 
 然后把 `amapWebServiceKey` 替换为受限的高德 Web 服务 Key。实际密钥文件及其 `.meta` 已被 `.gitignore` 排除，不应提交到仓库。

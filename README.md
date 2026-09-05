@@ -8,7 +8,7 @@ ARGuiding 是面向广州黄花岗公园的 Unity Android AR 导览原型。应�
 - 目标平台：Android
 - AR：Vuforia Engine `10.22.5`
 - UI：Unity UGUI、TextMesh Pro `3.0.6`
-- 主场景：`Assets/Scenes/Main_Scene.unity`
+- 主场景：`Assets/ARGuiding/Scenes/Main_Scene.unity`
 
 Unity 安装时需要同时安装 Android Build Support、Android SDK & NDK Tools 和 OpenJDK。尽量使用项目记录的精确 Unity 版本打开，避免未经验证的场景和资源升级。
 
@@ -31,7 +31,7 @@ Unity 项目中必须提交 `Assets`、所有 `.meta` 文件、`Packages` 和 `P
 1. 使用 Unity Hub 安装指定编辑器和 Android 模块。
 2. 打开仓库根目录，等待 Package Manager 和资源导入完成。
 3. 在 Console 中清除旧日志，再确认没有编译错误、`Missing Script` 或资源导入错误。
-4. 打开 `Assets/Scenes/Main_Scene.unity`。
+4. 打开 `Assets/ARGuiding/Scenes/Main_Scene.unity`。
 5. 检查 Build Settings 中只有 `Main_Scene` 被启用。
 6. 在编辑器中进入 Play Mode，确认 UI、地图和测试导航能够启动。
 7. 构建 Development APK，在真实 Android 设备上完成下方冒烟测试。
@@ -59,10 +59,14 @@ Unity 项目中必须提交 `Assets`、所有 `.meta` 文件、`Packages` 和 `P
 
 ## 目录概览
 
-- `Assets/Scripts`：导航、地图、AR、UI 和通用管理器。
-- `Assets/Resources/UI`：运行时加载的 UI 预制体。
-- `Assets/Resources/Prefabs`：路线、地图瓦片、相机和虚拟讲解员。
-- `Assets/ArtRes`：图片、字体、音频、视频、动画和模型。
+- `Assets/ARGuiding/Runtime`：按应用、核心基础设施、功能和 UI 划分的业务脚本。
+- `Assets/ARGuiding/Resources/UI`：运行时加载的 UI 预制体。
+- `Assets/ARGuiding/Resources/Prefabs`：路线、地图瓦片、相机和虚拟讲解员。
+- `Assets/ARGuiding/Content`：图片、字体、音频、视频、动画和模型。
+- `Assets/Legacy`：不属于当前发布流程、等待独立复核的旧场景和示例代码。
+- `Assets/BuildReport`、`Assets/LJR`、`Assets/Plugins` 和 `Assets/TextMesh Pro`：第三方工具与依赖。
+
+详细职责边界见 [项目结构说明](Docs/ProjectStructure.md)，历史内容的保留依据见 [Legacy 内容清单](Docs/LegacyInventory.md)。
 - `Packages`：Unity 依赖清单和 Vuforia 本地包。
 - `ProjectSettings`：Unity 编辑器、Android 和构建配置。
 
