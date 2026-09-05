@@ -91,4 +91,42 @@ public class AmapResponseParserTests
         Assert.That(result, Is.False);
         Assert.That(error, Does.Contain("DAILY_QUERY_OVER_LIMIT"));
     }
+
+    [Test]
+    public void LatLngToMapPixelOffset_ReturnsZeroForMapCenter()
+    {
+        LatLng center = new LatLng(113.294761d, 23.140487d);
+
+        var offset = Location.LatLngToMapPixelOffset(center, center, 18);
+
+        Assert.That(offset.x, Is.EqualTo(0f).Within(0.001f));
+        Assert.That(offset.y, Is.EqualTo(0f).Within(0.001f));
+    }
+
+    [Test]
+    public void LatLngToMapPixelOffset_UsesScreenDirections()
+    {
+        LatLng center = new LatLng(113.294761d, 23.140487d);
+
+        var east = Location.LatLngToMapPixelOffset(new LatLng(113.295761d, 23.140487d), center, 18);
+        var north = Location.LatLngToMapPixelOffset(new LatLng(113.294761d, 23.141487d), center, 18);
+
+        Assert.That(east.x, Is.GreaterThan(0f));
+        Assert.That(east.y, Is.EqualTo(0f).Within(0.01f));
+        Assert.That(north.x, Is.EqualTo(0f).Within(0.01f));
+        Assert.That(north.y, Is.GreaterThan(0f));
+    }
+
+    [Test]
+    public void LatLngToMapPixelOffset_DoublesAtNextZoomLevel()
+    {
+        LatLng center = new LatLng(113.294761d, 23.140487d);
+        LatLng point = new LatLng(113.295761d, 23.141487d);
+
+        var zoom18 = Location.LatLngToMapPixelOffset(point, center, 18);
+        var zoom19 = Location.LatLngToMapPixelOffset(point, center, 19);
+
+        Assert.That(zoom19.x, Is.EqualTo(zoom18.x * 2f).Within(0.02f));
+        Assert.That(zoom19.y, Is.EqualTo(zoom18.y * 2f).Within(0.02f));
+    }
 }
